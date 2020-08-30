@@ -1,0 +1,8 @@
+-e clf -d /media/jc489948/D1/Issam/DeepFish -sb /media/jc489948/D1/prototypes -r 1
+-e reg -d /media/jc489948/D1/Issam/DeepFish -sb /media/jc489948/D1/prototypes -r 1
+-e loc -d /media/jc489948/D1/Issam/DeepFish -sb /media/jc489948/D1/prototypes -r 1
+-e seg -d /media/jc489948/D1/Issam/DeepFish -sb /media/jc489948/D1/prototypes -r 1
+
+
+python trainval.py -e <task> -sb <savedir_base> -d <datadir> -r 1
+`python trainval.py -e ${TASK} -sb ${SAVEDIR_BASE} -d ${DATADIR} -r 1`

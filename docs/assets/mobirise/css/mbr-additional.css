@@ -1,0 +1,16 @@
+@import url(https://fonts.googleapis.com/css?family=Playfair+Display:400,700&subset=latin,cyrillic);
+
+#header2-0 H1 {
+  text-align: left;
+  color: #2e2e2e;
+}
+#header2-0 B {
+  font-size: 100px;
+  font-family: 'Playfair Display', sans-serif;
+}
+#content4-5 H4 {
+  text-align: right;
+}
+#content4-5 P {
+  font-size: 16px;
+}

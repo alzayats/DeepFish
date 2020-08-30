@@ -104,3 +104,4 @@ venv.bak/
 .mypy_cache/
 /terminal.txt
 .idea
+/terminal_temp.txt

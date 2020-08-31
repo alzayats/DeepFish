@@ -1,11 +1,11 @@
 
 
-# DeepFish (A Realistic Fish-Habitat Dataset to Evaluate Algorithms for Underwater Visual Analysis) [Paper](https://)   
+# DeepFish (A Realistic Fish-Habitat Dataset to Evaluate Algorithms for Underwater Visual Analysis) [Paper](https://arxiv.org/abs/2008.12603)   
 [![DOI](https://zenodo.org/badge/206528410.svg)](https://zenodo.org/badge/latestdoi/206528410)
 ### Accepted at Scientific Reports (Nature)
 
 This repository contains the code to reproduce the experiments of the paper.
-*  DeepFish  [Paper](https:// ).
+*  DeepFish  [Paper](https://arxiv.org/abs/2008.12603).
 *  DeepFish Dataset [website](https://alzayats.github.io/DeepFish/).
 *  Download the DeepFish dataset from [here](https://cloudstor.aarnet.edu.au/plus/s/NfjObIhtUYO6332)
 
@@ -43,11 +43,12 @@ IEEE style citation: “Alzayat Saleh, Issam H. Laradji, Dmitry A. Konovalov, Da
 
 ### BibTeX
 ```
-@article{DeepFish2019,
-  author = {Alzayat Saleh, Issam H. Laradji, Dmitry A. Konovalov,  Michael Bradley, David Vazquez, and Marcus Sheaves},
-  title = {{A Realistic Fish-Habitat Dataset to Evaluate Algorithms for Underwater Visual Analysis}},
-  journal={arXiv preprint arXiv:2007.02180},
-  year={2020}
+@article{saleh2020realistic,
+    title={A Realistic Fish-Habitat Dataset to Evaluate Algorithms for Underwater Visual Analysis},
+    author={Alzayat Saleh and Issam H. Laradji and Dmitry A. Konovalov and Michael Bradley and David Vazquez and Marcus Sheaves},
+    year={2020},
+    eprint={2008.12603},
+    archivePrefix={arXiv},
+    primaryClass={cs.CV}
 }
-
 ```

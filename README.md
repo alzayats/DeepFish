@@ -18,9 +18,18 @@ This repository contains the code to reproduce the experiments of the paper.
 ### Reproducing paper experiments
 ![CNN](Figure_4.png)
 
+#### Requirements
+* Python 3.6
+* pytorch 0.4.1, torchvision 0.2.1
+* CUDA 9.0
+* 1 x GPU (4GB)
 
+#### Installation
+Download the repository:
 
-Experiment hyperparameters are defined in `./exp_configs.py`
+`git clone https://github.com/alzayats/DeepFish.git`
+
+Experiment hyperparameters are defined in `./src/exp_configs.py`
 
 Run the following command to reproduce the experiments in the paper:
 

@@ -1,11 +1,11 @@
 
 
-# DeepFish (A Realistic Fish-Habitat Dataset to Evaluate Algorithms for Underwater Visual Analysis) [Paper](https://arxiv.org/abs/2008.12603)   
+# DeepFish (A Realistic Fish-Habitat Dataset to Evaluate Algorithms for Underwater Visual Analysis) [Paper](https://www.nature.com/articles/s41598-020-71639-x)   
 [![DOI](https://zenodo.org/badge/206528410.svg)](https://zenodo.org/badge/latestdoi/206528410)
 ### Accepted at Scientific Reports (Nature)
 
 This repository contains the code to reproduce the experiments of the paper.
-*  DeepFish  [Paper](https://arxiv.org/abs/2008.12603).
+*  DeepFish  [Paper](https://www.nature.com/articles/s41598-020-71639-x).
 *  DeepFish Dataset [website](https://alzayats.github.io/DeepFish/).
 *  Download the DeepFish dataset from [here](https://cloudstor.aarnet.edu.au/plus/s/NfjObIhtUYO6332)
 

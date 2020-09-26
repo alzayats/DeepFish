@@ -6,17 +6,14 @@
 
 This repository contains the code to reproduce the experiments of the paper.
 *  DeepFish  [Paper](https://www.nature.com/articles/s41598-020-71639-x).
-*  DeepFish Dataset [website](https://alzayats.github.io/DeepFish/).
 *  Download the DeepFish dataset from [here](https://cloudstor.aarnet.edu.au/plus/s/NfjObIhtUYO6332)
 
 ![counting](count.gif) 
 ![Segmentation](seg.gif) 
 
 
-
-
 ### Reproducing paper experiments
-![CNN](Figure_4.png)
+![CNN](docs/Figure_4.png)
 
 #### Requirements
 * Python 3.6

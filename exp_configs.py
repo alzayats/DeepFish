@@ -1,28 +1,7 @@
 from src import mlkit
 
 EXP_GROUPS = {
-  "fisheries": {"dataset":[
-        # "tiny_fish_loc", 
-        # "fish_loc"
-        "Como_Lake_2",
-        "Chimney",
-        "Green_Timbers",
-        "Hastings",
-        "kentucky",
-        "lafrage",
-        "yellow_docks_1",
-        "Rice_lake"
-        ],
-                      "task": ["loc"],
-                        "model":[
-                           "fcn8"],
-                        "batch_size": [1],
-                        "transform":["rgb_normalize"],
-                        "max_epoch": [1000],
-                        "wrapper":["loc_wrapper"]},
-
      "clf": {"dataset":[
-      #  "tiny_fish_clf", 
       "fish_clf"],
             "task":["clf"],
             "model":[ 
@@ -34,7 +13,6 @@ EXP_GROUPS = {
             "wrapper":["clf_wrapper"]},
 
      "reg": {"dataset":[
-      #  "tiny_fish_reg",
        "fish_reg"],
                             "task":["reg"],
                            "model":[
@@ -45,8 +23,7 @@ EXP_GROUPS = {
                            "max_epoch": [1000],
                            "wrapper":["reg_wrapper"]},
 
-      "loc": {"dataset":[
-        # "tiny_fish_loc", 
+      "loc": {"dataset":[ 
         "fish_loc"],
                       "task": ["loc"],
                         "model":[

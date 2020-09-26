@@ -9,8 +9,8 @@ This repository contains the code to reproduce the experiments of the paper.
 *  DeepFish  [Paper](https://www.nature.com/articles/s41598-020-71639-x).
 *  Download the DeepFish dataset from [here](https://cloudstor.aarnet.edu.au/plus/s/NfjObIhtUYO6332)
 
-![counting](count.gif) 
-![Segmentation](seg.gif) 
+![counting](docs/count.gif) 
+![Segmentation](docs/seg.gif) 
 
 
 ### Reproducing paper experiments

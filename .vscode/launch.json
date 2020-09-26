@@ -1,0 +1,23 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "trainval",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/trainval.py",
+            "console": "integratedTerminal",
+            "args":[
+                "-e", "fish_pseudo", "fish_shared", "fish_hybrid", 
+                "-r", "1",
+                "-d","/mnt/public/datasets/DeepFish",
+                "-sb", "/mnt/public/results/debug/weak_supervision",
+                // "-j", "1",
+                "-nw","0"
+        ],
+        },
+    ]
+}

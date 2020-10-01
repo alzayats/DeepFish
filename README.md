@@ -14,7 +14,7 @@ This repository contains the code to reproduce the experiments of the paper.
 
 
 ## Install requirements
-`pip install -r requirements.txt` 
+`pip install -r requirements.txt`  which installs [haven-ai](https://github.com/haven-ai/haven-ai) a library for managing reproducible large scale experments.
 
 ### Reproducing paper experiments
 ![CNN](docs/Figure_4.png)

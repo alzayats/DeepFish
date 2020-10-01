@@ -10,7 +10,6 @@ import numpy as np
 import pandas as pd
 import  numpy as np
 import os
-from src.datasets import fisheries
 
 def get_dataset(dataset_name, split, transform=None, 
                 datadir=None, habitat=None):
@@ -70,18 +69,6 @@ def get_dataset(dataset_name, split, transform=None,
                               datadir=datadir+ "/Segmentation/", 
                               n_samples=10,
                               habitat=habitat)
-
-    elif dataset_name in ["Como_Lake_2",
-        "Chimney",
-        "Green_Timbers",
-        "Hastings",
-        "kentucky",
-        "lafrage",
-        "yellow_docks_1",
-        "Rice_lake"]:
-        dataset = fisheries.Fisheries(split, 
-                    transform=transform, datadir="", 
-                        n_samples=None, lake=dataset_name)
 
     return dataset
 

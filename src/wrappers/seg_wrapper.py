@@ -9,7 +9,6 @@ from src import utils as ut
 from sklearn.metrics import confusion_matrix
 import skimage
 from src import wrappers
-from src import mlkit 
 
 
 class SegWrapper(torch.nn.Module):
@@ -73,8 +72,8 @@ class SegWrapper(torch.nn.Module):
 
        
 
-        img = mlkit.get_image(batch["images"], denorm="rgb")
-        img_np = mlkit.f2l(img).squeeze().clip(0,1)
+        img = hu.get_image(batch["images"], denorm="rgb")
+        img_np = hu.f2l(img).squeeze().clip(0,1)
         pm = pred_mask.squeeze()
         # if pm.sum()>0:
         #     print(3)
@@ -84,12 +83,12 @@ class SegWrapper(torch.nn.Module):
         # print(mmask.shape)
 
         # img_mask = 0.7*img[0] + 0.3*mmask
-        mlkit.save_image(savedir+"/images/%d.jpg" % batch["meta"]["index"],
+        hu.save_image(savedir+"/images/%d.jpg" % batch["meta"]["index"],
                          img_mask)
-        mlkit.save_image(savedir+"/images/%d_org.jpg" % batch["meta"]["index"], img)
-        mlkit.save_image(savedir+"/images/%d_gt.jpg" % batch["meta"]["index"],
+        hu.save_image(savedir+"/images/%d_org.jpg" % batch["meta"]["index"], img)
+        hu.save_image(savedir+"/images/%d_gt.jpg" % batch["meta"]["index"],
                          color.label2rgb(label(batch["mask_classes"])[0], bg_label=0))
-        mlkit.save_json(savedir+"/images/%d.json" % batch["meta"]["index"], 
+        hu.save_json(savedir+"/images/%d.json" % batch["meta"]["index"], 
                     {"pred_label":float(pred_mask.sum()>0), 
                     "gt_label": float(batch["labels"])})
                     

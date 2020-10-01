@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 import argparse
 import pandas as pd
 import sys
@@ -9,21 +10,51 @@ import tqdm
 import pprint
 from src import utils as ut
 import torchvision
+from haven import haven_utils as hu
+from haven import haven_chk as hc
 
-from src import mlkit
 from src import datasets, models
 from torch.utils.data import DataLoader
 import exp_configs
 from torch.utils.data.sampler import RandomSampler
-from src import mlkit
 from src import wrappers
 
 
-def trainval(exp_dict, savedir, datadir, val_flag=True, vis_flag=True):
-    """Main."""
-    pprint.pprint(exp_dict)
-    print("Experiment saved in %s" % savedir)
 
+def trainval(exp_dict, savedir_base, reset, metrics_flag=True, datadir=None, cuda=False):
+    # bookkeeping
+    # ---------------
+
+    # get experiment directory
+    exp_id = hu.hash_dict(exp_dict)
+    savedir = os.path.join(savedir_base, exp_id)
+
+    if reset:
+        # delete and backup experiment
+        hc.delete_experiment(savedir, backup_flag=True)
+    
+    # create folder and save the experiment dictionary
+    os.makedirs(savedir, exist_ok=True)
+    hu.save_json(os.path.join(savedir, 'exp_dict.json'), exp_dict)
+    print(pprint.pprint(exp_dict))
+    print('Experiment saved in %s' % savedir)
+
+
+    # set seed
+    # ==================
+    seed = 42
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    if cuda:
+        device = 'cuda'
+        torch.cuda.manual_seed_all(seed)
+        assert torch.cuda.is_available(), 'cuda is not, available please run with "-c 0"'
+    else:
+        device = 'cpu'
+
+    print('Running on device: %s' % device)
+    
+    # Dataset
     # Load val set and train set
     val_set = datasets.get_dataset(dataset_name=exp_dict["dataset"], split="val",
                                    transform=exp_dict.get("transform"),
@@ -55,29 +86,32 @@ def trainval(exp_dict, savedir, datadir, val_flag=True, vis_flag=True):
 
     score_list = []
 
-    # Restart or Resume from last saved state_dict
-    if (not os.path.exists(savedir + "/run_dict.pkl") or 
-        not os.path.exists(savedir + "/score_list.pkl")):
-        mlkit.save_pkl(savedir + "/run_dict.pkl", {"running":1})
+    # Checkpointing
+    # =============
+    score_list_path = os.path.join(savedir, "score_list.pkl")
+    model_path = os.path.join(savedir, "model_state_dict.pth")
+    opt_path = os.path.join(savedir, "opt_state_dict.pth")
+
+    if os.path.exists(score_list_path):
+        # resume experiment
+        score_list = ut.load_pkl(score_list_path)
+        model.load_state_dict(torch.load(model_path))
+        opt.load_state_dict(torch.load(opt_path))
+        s_epoch = score_list[-1]["epoch"] + 1
+    else:
+        # restart experiment
         score_list = []
         s_epoch = 0
-    else:
-        score_list = mlkit.load_pkl(savedir + "/score_list.pkl")
-        model.load_state_dict(torch.load(savedir + "/model_state_dict.pth"))
-        opt.load_state_dict(torch.load(savedir + "/opt_state_dict.pth"))
-        s_epoch = score_list[-1]["epoch"] + 1
 
     # Run training and validation
     for epoch in range(s_epoch, exp_dict["max_epoch"]):
         score_dict = {"epoch": epoch}
 
         # visualize
-        if vis_flag:
-            model.vis_on_loader(vis_loader, savedir=savedir+"/images/")
+        # model.vis_on_loader(vis_loader, savedir=os.path.join(savedir, "images"))
 
         # validate
-        if val_flag:
-            score_dict.update(model.val_on_loader(val_loader))
+        score_dict.update(model.val_on_loader(val_loader))
         
         # train
         score_dict.update(model.train_on_loader(train_loader))
@@ -87,50 +121,50 @@ def trainval(exp_dict, savedir, datadir, val_flag=True, vis_flag=True):
 
         # Report and save
         print(pd.DataFrame(score_list).tail())
-        mlkit.save_pkl(savedir + "/score_list.pkl", score_list)
-        mlkit.torch_save(savedir + "/model_state_dict.pth", model.state_dict())
-        mlkit.torch_save(savedir + "/opt_state_dict.pth", opt.state_dict())
-        print("Saved: %s" % savedir)
+        hu.save_pkl(score_list_path, score_list)
+        hu.torch_save(model_path, model.state_dict())
+        hu.torch_save(opt_path, opt.state_dict())
+        print("Saved in %s" % savedir)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    
-    parser.add_argument('-e', '--exp_group_list', nargs="+")
-    parser.add_argument('-sb', '--savedir_base', default="/mnt/datasets/public/issam/prototypes/underwater_fish/non_borgy/")
-    parser.add_argument('-d', '--datadir', default="/mnt/datasets/public/issam/FishCount_annotated/")
-    parser.add_argument("-r", "--reset",  default=0, type=int)
-    parser.add_argument("-ei", "--exp_id", default=None)
-    parser.add_argument("-vf", "--val_flag", default=1, type=int)
-    parser.add_argument("-vs", "--vis_flag", default=1, type=int)
-   
+
+    parser.add_argument('-e', '--exp_group_list', nargs='+')
+    parser.add_argument('-sb', '--savedir_base', required=True)
+    parser.add_argument('-d', '--datadir', required=True)
+    parser.add_argument('-r', '--reset',  default=0, type=int)
+    parser.add_argument('-ei', '--exp_id', default=None)
+    parser.add_argument('-c', '--cuda', type=int, default=1)
+
     args = parser.parse_args()
-    exp_list = []
-    for exp_group_name in args.exp_group_list:
-        exp_list += exp_configs.EXP_GROUPS[exp_group_name]
 
-    # loop over experiments
-    for exp_dict in exp_list:
-        exp_id = mlkit.hash_dict(exp_dict)
 
-        if args.exp_id is not None and args.exp_id != exp_id:
-            continue
+    # Collect experiments
+    # -------------------
+    if args.exp_id is not None:
+        # select one experiment
+        savedir = os.path.join(args.savedir_base, args.exp_id)
+        exp_dict = hu.load_json(os.path.join(savedir, 'exp_dict.json'))        
         
-        savedir = args.savedir_base + "/%s/" % exp_id
-        os.makedirs(savedir, exist_ok=True)
-        mlkit.save_json(savedir+"/exp_dict.json", exp_dict)
+        exp_list = [exp_dict]
+        
+    else:
+        # select exp group
+        exp_list = []
+        for exp_group_name in args.exp_group_list:
+            exp_list += exp_configs.EXP_GROUPS[exp_group_name]
 
-        # check if experiment exists
-        if args.reset:
-            if os.path.exists(savedir + "/score_list.pkl"):
-                os.remove(savedir + "/score_list.pkl")
-            if os.path.exists(savedir + "/run_dict.pkl"):
-                os.remove(savedir + "/run_dict.pkl")
-
+    ####
+    # Run experiments or View them
+    # ----------------------------
+    
+    # run experiments
+    for exp_dict in exp_list:
         # do trainval
-        trainval(exp_dict=exp_dict, 
-                 savedir=savedir, 
-                 datadir=args.datadir, 
-                 val_flag=args.val_flag,
-                 vis_flag=args.vis_flag)
+        trainval(exp_dict=exp_dict,
+                savedir_base=args.savedir_base,
+                reset=args.reset,
+                datadir=args.datadir,
+                cuda=args.cuda)
 

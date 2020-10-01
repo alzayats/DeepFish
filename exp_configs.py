@@ -1,4 +1,4 @@
-from src import mlkit
+from haven import haven_utils as hu
 
 EXP_GROUPS = {
      "clf": {"dataset":[
@@ -49,4 +49,4 @@ EXP_GROUPS = {
              }
 
 
-EXP_GROUPS = {k:mlkit.cartesian_exp_group(v) for k,v in EXP_GROUPS.items()}
+EXP_GROUPS = {k:hu.cartesian_exp_group(v) for k,v in EXP_GROUPS.items()}

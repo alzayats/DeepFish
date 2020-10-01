@@ -9,11 +9,11 @@ from src import utils as ut
 from sklearn.metrics import confusion_matrix
 import skimage
 from src import wrappers
-from src import mlkit
 from skimage import morphology as morph
-from skimage.morphology import watershed
+from skimage.segmentation import watershed
 from skimage.segmentation import find_boundaries
 from scipy import ndimage
+from haven import haven_utils as hu
 
 
 class LocWrapper(torch.nn.Module):
@@ -43,7 +43,7 @@ class LocWrapper(torch.nn.Module):
 
         points = batch["points"].long().cuda()
 
-        points_numpy = mlkit.t2n(points).squeeze()
+        points_numpy = hu.t2n(points).squeeze()
         blob_dict = get_blob_dict_base(self, blobs, points_numpy)
 
         self.train()
@@ -134,25 +134,25 @@ class LocWrapper(torch.nn.Module):
         pred_count = pred_counts.ravel()[0]
         pred_blobs = pred_blobs.squeeze()
 
-        img = mlkit.get_image(batch["images"],denorm="rgb")
-        # img_points = mlkit.get_image(batch["images"],mask=batch["points"].squeeze(), enlarge=1, denorm="rgb")
-        points = mlkit.zoom(batch["points"],11).squeeze()
-        img_np = mlkit.f2l(img).squeeze().clip(0,1)
+        img = hu.get_image(batch["images"],denorm="rgb")
+        # img_points = hu.get_image(batch["images"],mask=batch["points"].squeeze(), enlarge=1, denorm="rgb")
+        points = hu.zoom(batch["points"],11).squeeze()
+        img_np = hu.f2l(img).squeeze().clip(0,1)
 
         out = color.label2rgb(label(pred_blobs), image=(img_np), image_alpha=1.0, bg_label=0)
         img_mask = mark_boundaries(out.squeeze(),  label(pred_blobs).squeeze())
 
         out = color.label2rgb(label(points), image=(img_np), image_alpha=1.0, bg_label=0)
         img_points = mark_boundaries(out.squeeze(),  label(points).squeeze())
-        # img = 255*mlkit.get_image(batch["images"],mask=batch["points"].squeeze(), enlarge=1, denorm="rgb")
+        # img = 255*hu.get_image(batch["images"],mask=batch["points"].squeeze(), enlarge=1, denorm="rgb")
         # img = im.get_image(0.7*batch["images"] + 0.3*torch.FloatTensor(pred_blobs).squeeze(), denorm="rgb")
-        # img_mask = 0.7*img[0] + 0.3*mlkit.l2f(mlkit.gray2cmap(pred_blobs)[0])
+        # img_mask = 0.7*img[0] + 0.3*hu.l2f(hu.gray2cmap(pred_blobs)[0])
         # if batch["meta"]["index"] == 6:
         #     print(3)
-        mlkit.save_image(savedir+"/images/%d.jpg" % batch["meta"]["index"], img_mask)
-        # mlkit.save_image(savedir+"/images/%d_org.jpg" % batch["meta"]["index"], img)
-        # mlkit.save_image(savedir+"/images/%d_gt.jpg" % batch["meta"]["index"], img_points)
-        # mlkit.save_json(savedir+"/images/%d.json" % batch["meta"]["index"], 
+        hu.save_image(savedir+"/images/%d.jpg" % batch["meta"]["index"], img_mask)
+        # hu.save_image(savedir+"/images/%d_org.jpg" % batch["meta"]["index"], img)
+        # hu.save_image(savedir+"/images/%d_gt.jpg" % batch["meta"]["index"], img_points)
+        # hu.save_json(savedir+"/images/%d.json" % batch["meta"]["index"], 
         #             {"pred_count":float(pred_count), "gt_count": float(batch["counts"])})
 
 
@@ -280,8 +280,8 @@ def lc_loss_base(logits, images, points, counts, blob_dict):
         loss += compute_split_loss(S_log, S, points, blob_dict)
 
     # Global loss
-    S_npy = mlkit.t2n(S.squeeze())
-    points_npy = mlkit.t2n(points).squeeze()
+    S_npy = hu.t2n(S.squeeze())
+    points_npy = hu.t2n(points).squeeze()
     for l in range(1, S.shape[1]):
         points_class = (points_npy == l).astype(int)
 
@@ -345,8 +345,8 @@ def compute_bg_loss(S_log, bg_mask):
 
 def compute_split_loss(S_log, S, points, blob_dict):
     blobs = blob_dict["blobs"]
-    S_numpy = mlkit.t2n(S[0])
-    points_numpy = mlkit.t2n(points).squeeze()
+    S_numpy = hu.t2n(S[0])
+    points_numpy = hu.t2n(points).squeeze()
 
     loss = 0.
 
@@ -385,7 +385,7 @@ def watersplit(_probs, _points):
 @torch.no_grad()
 def get_blob_dict(model, batch, training=False):
     blobs = model.predict(batch, method="blobs").squeeze()
-    points = mlkit.t2n(batch["points"]).squeeze()
+    points = hu.t2n(batch["points"]).squeeze()
 
     return get_blob_dict_base(model, blobs, points, training=training)
 

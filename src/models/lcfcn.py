@@ -12,7 +12,6 @@ import numpy as np
 from skimage.morphology import watershed
 from skimage.segmentation import find_boundaries
 from scipy import ndimage
-from src import mlkit
 
 class LCFCN(nn.Module):
     def __init__(self):

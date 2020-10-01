@@ -27,16 +27,13 @@ def train_on_loader(model, train_loader):
 
     n_batches = len(train_loader)
     train_monitor = TrainMonitor()
+    print('Training')
     for e in range(1):
-        for i, batch in enumerate(train_loader):
+        for i, batch in enumerate(tqdm.tqdm(train_loader)):
             score_dict = model.train_on_batch(batch)
             
             train_monitor.add(score_dict)
-            if i % 10 == 0:
-                msg = "%d/%d %s" % (i, n_batches, train_monitor.get_avg_score())
-                
-                print(msg)
-
+        
     return train_monitor.get_avg_score()
 
 @torch.no_grad()
@@ -44,15 +41,15 @@ def val_on_loader(model, val_loader, val_monitor):
     model.eval()
 
     n_batches = len(val_loader)
-    
-    for i, batch in enumerate(val_loader):
+    print('Validating')
+    for i, batch in enumerate(tqdm.tqdm(val_loader)):
         score = model.val_on_batch(batch)
 
         val_monitor.add(score)
-        if i % 10 == 0:
-            msg = "%d/%d %s" % (i, n_batches, val_monitor.get_avg_score())
+        # if i % 10 == 0:
+        #     msg = "%d/%d %s" % (i, n_batches, val_monitor.get_avg_score())
             
-            print(msg)
+        #     print(msg)
 
 
     return val_monitor.get_avg_score()

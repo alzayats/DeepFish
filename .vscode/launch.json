@@ -11,12 +11,12 @@
             "program": "${workspaceFolder}/trainval.py",
             "console": "integratedTerminal",
             "args":[
-                "-e", "fish_pseudo", "fish_shared", "fish_hybrid", 
+                "-e", "loc", 
                 "-r", "1",
                 "-d","/mnt/public/datasets/DeepFish",
                 "-sb", "/mnt/public/results/debug/weak_supervision",
                 // "-j", "1",
-                "-nw","0"
+                // "-nw","0"
         ],
         },
     ]

@@ -13,6 +13,9 @@ This repository contains the code to reproduce the experiments of the paper.
 ![Segmentation](docs/seg.gif) 
 
 
+## Install requirements
+`pip install -r requirements.txt` 
+
 ### Reproducing paper experiments
 ![CNN](docs/Figure_4.png)
 

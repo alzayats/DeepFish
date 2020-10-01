@@ -9,7 +9,6 @@ from src import utils as ut
 from sklearn.metrics import confusion_matrix
 import skimage
 from src import wrappers
-from src import mlkit
 
 
 class RegWrapper(torch.nn.Module):
@@ -56,9 +55,9 @@ class RegWrapper(torch.nn.Module):
         self.eval()
         
         pred_counts = self.predict_on_batch(batch)
-        img = mlkit.get_image(batch["image_original"], denorm="rgb")
-        mlkit.save_image(savedir+"/images/%d.jpg" % batch["meta"]["index"], img)
-        mlkit.save_json(savedir+"/images/%d.json" % batch["meta"]["index"], 
+        img = hu.get_image(batch["image_original"], denorm="rgb")
+        hu.save_image(savedir+"/images/%d.jpg" % batch["meta"]["index"], img)
+        hu.save_json(savedir+"/images/%d.json" % batch["meta"]["index"], 
                     {"pred_counts":float(pred_counts), "gt_counts": float(batch["counts"])})
 
 

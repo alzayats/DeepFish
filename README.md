@@ -8,25 +8,27 @@
 This repository contains the code to reproduce the experiments of the paper.
 *  DeepFish  [Paper](https://www.nature.com/articles/s41598-020-71639-x).
 *  Download the DeepFish dataset from [here](https://cloudstor.aarnet.edu.au/plus/s/NfjObIhtUYO6332)
-
+![CNN](docs/Figure_4.png)
 ![counting](docs/count.gif) 
 ![Segmentation](docs/seg.gif) 
 
 
 ## Install requirements
 `pip install -r requirements.txt` 
+`pip install git+https://github.com/ElementAI/LCFCN`
 
-### Reproducing paper experiments
-![CNN](docs/Figure_4.png)
+## 1. Train and test on single image
+```
+python scripts/train_single_image.py -d ${DATADIR}
+```
 
+* `DATADIR`: Absolute path containing the downloaded datasets
 
+This outputs the following image 
 
-#### Installation
-Download the repository:
+![CNN](docs/single_image.png)
 
-`git clone https://github.com/alzayats/DeepFish.git`
-
-Experiment hyperparameters are defined in `exp_configs.py`
+## 2. Train and test on the dataset
 
 Run the following command to reproduce the experiments in the paper:
 
@@ -34,13 +36,13 @@ Run the following command to reproduce the experiments in the paper:
 
 The variables (`${...}`) can be substituted with the following values:
 
-* `TASK` : clf, reg, loc, seg
+* `TASK` : loc, seg, clf, reg
 * `SAVEDIR_BASE`: Absolute path to where results will be saved
 * `DATADIR`: Absolute path containing the downloaded datasets
 
+Experiment hyperparameters are defined in `exp_configs.py`
 
-
-### Citations
+## Citations
 
 If you use the DeepFish dataset in your work, please cite it as:
 

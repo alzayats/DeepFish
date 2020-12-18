@@ -8,7 +8,7 @@ def get_model(model_name, exp_dict):
         model = fcn8.FCN8()
     
     if model_name == "fcn8_vgg16":
-        model = fcn8_vgg16.FCN8VGG16(n_classes=2)
+        model = fcn8_vgg16.FCN8VGG16(n_classes=1)
 
     if model_name == "unet":
         model = unet.UNET()

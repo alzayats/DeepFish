@@ -1,6 +1,6 @@
 
 
-# DeepFish (A Realistic Fish-Habitat Dataset to Evaluate Algorithms for Underwater Visual Analysis) [[Paper]](https://www.nature.com/articles/s41598-020-71639-x)   
+## DeepFish (A Realistic Fish-Habitat Dataset to Evaluate Algorithms for Underwater Visual Analysis) [[Paper]](https://www.nature.com/articles/s41598-020-71639-x)   
 [![DOI](https://zenodo.org/badge/206528410.svg)](https://zenodo.org/badge/latestdoi/206528410)
 
 ### Accepted at Scientific Reports (Nature)
@@ -14,6 +14,7 @@
 
 ## Install requirements
 `pip install -r requirements.txt` 
+
 `pip install git+https://github.com/ElementAI/LCFCN`
 
 ## Download

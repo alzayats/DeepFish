@@ -9,6 +9,7 @@ from src import utils as ut
 from sklearn.metrics import confusion_matrix
 import skimage
 from src import wrappers
+from haven import haven_utils as hu
 
 
 class SegWrapper(torch.nn.Module):
@@ -63,7 +64,7 @@ class SegWrapper(torch.nn.Module):
 
 
 
-    def vis_on_batch(self, batch, savedir):
+    def vis_on_batch(self, batch, savedir_image):
         from skimage.segmentation import mark_boundaries
         from skimage import data, io, segmentation, color
         from skimage.measure import label
@@ -73,24 +74,13 @@ class SegWrapper(torch.nn.Module):
        
 
         img = hu.get_image(batch["images"], denorm="rgb")
-        img_np = hu.f2l(img).squeeze().clip(0,1)
+        img_np = np.array(img)
         pm = pred_mask.squeeze()
-        # if pm.sum()>0:
-        #     print(3)
-        # img = im.get_image(0.7*batch["images"] + 0.3*torch.FloatTensor(pred_blobs).squeeze(), denorm="rgb")
         out = color.label2rgb(label(pm), image=(img_np), image_alpha=1.0, bg_label=0)
         img_mask = mark_boundaries(out.squeeze(),  label(pm).squeeze())
-        # print(mmask.shape)
-
-        # img_mask = 0.7*img[0] + 0.3*mmask
-        hu.save_image(savedir+"/images/%d.jpg" % batch["meta"]["index"],
-                         img_mask)
-        hu.save_image(savedir+"/images/%d_org.jpg" % batch["meta"]["index"], img)
-        hu.save_image(savedir+"/images/%d_gt.jpg" % batch["meta"]["index"],
-                         color.label2rgb(label(batch["mask_classes"])[0], bg_label=0))
-        hu.save_json(savedir+"/images/%d.json" % batch["meta"]["index"], 
-                    {"pred_label":float(pred_mask.sum()>0), 
-                    "gt_label": float(batch["labels"])})
+        out = color.label2rgb(label(batch["mask_classes"][0]), image=(img_np), image_alpha=1.0, bg_label=0)
+        img_gt = mark_boundaries(out.squeeze(),  label(batch["mask_classes"]).squeeze())
+        hu.save_image(savedir_image, np.hstack([img_gt, img_mask]))
                     
 
 class SegMonitor:

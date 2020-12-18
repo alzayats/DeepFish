@@ -24,13 +24,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('-d', '--datadir',
                         type=str, default='/mnt/public/datasets/DeepFish')
-    
+    parser.add_argument("-e", "--exp_config", default='loc')
     parser.add_argument("-uc", "--use_cuda", type=int, default=0)
     args = parser.parse_args()
 
     device = torch.device('cuda' if args.use_cuda else 'cpu')
 
-    exp_dict = exp_configs.EXP_GROUPS['loc'][0]
+    exp_dict = exp_configs.EXP_GROUPS[args.exp_config][0]
     train_set = datasets.get_dataset(dataset_name=exp_dict["dataset"],
                                      split="train", 
                                      transform=exp_dict.get("transform"),
@@ -44,13 +44,16 @@ if __name__ == "__main__":
 
     model = wrappers.get_wrapper(exp_dict["wrapper"], model=model_original, opt=opt).cuda()
 
-    batch = torch.utils.data.dataloader.default_collate([train_set[3]])
+    if args.exp_config == 'loc':
+        batch = torch.utils.data.dataloader.default_collate([train_set[3]])
+    else:
+        batch = torch.utils.data.dataloader.default_collate([train_set[0]])
 
     for e in range(50):
         score_dict = model.train_on_batch(batch)
-        print(e, 'loss:', score_dict['loss_loc'])
+        print(e, score_dict)
 
-        model.vis_on_batch(batch, 'single_image.png')
+        model.vis_on_batch(batch, f'single_image_{args.exp_config}.png')
         #hu.save_image(fname, model.vis_on_batch(batch, view_support=True)[0])
 
         # validate on batch

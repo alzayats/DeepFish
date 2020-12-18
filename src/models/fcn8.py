@@ -14,9 +14,9 @@ from skimage.segmentation import find_boundaries
 from scipy import ndimage
 
 class FCN8(nn.Module):
-    def __init__(self):
+    def __init__(self, n_classes=2):
         super().__init__()
-        self.n_classes = 1
+        self.n_classes = n_classes
 
         # Load the pretrained weights, remove avg pool
         # layer and get the output stride of 8

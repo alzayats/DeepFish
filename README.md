@@ -5,9 +5,8 @@
 
 ### Accepted at Scientific Reports (Nature)
 
-This repository contains the code to reproduce the experiments of the paper.
 *  DeepFish  [Paper](https://www.nature.com/articles/s41598-020-71639-x).
-*  Download the DeepFish dataset from [here](https://cloudstor.aarnet.edu.au/plus/s/NfjObIhtUYO6332)
+
 ![CNN](docs/Figure_4.png)
 ![counting](docs/count.gif) 
 ![Segmentation](docs/seg.gif) 
@@ -17,16 +16,30 @@ This repository contains the code to reproduce the experiments of the paper.
 `pip install -r requirements.txt` 
 `pip install git+https://github.com/ElementAI/LCFCN`
 
-## 1. Train and test on single image
-```
-python scripts/train_single_image.py -d ${DATADIR}
-```
+## Download
 
-* `DATADIR`: Absolute path containing the downloaded datasets
+*  Download the DeepFish dataset from [here](https://cloudstor.aarnet.edu.au/plus/s/NfjObIhtUYO6332)
+
+## 1. Train and test on single image
+
+### Localization
+```
+python scripts/train_single_image.py -e loc -d ${PATH_TO_DATASET}
+```
 
 This outputs the following image 
 
-![CNN](docs/single_image.png)
+![CNN](docs/single_image_loc.png)
+
+### Segmentation
+
+```
+python scripts/train_single_image.py -e seg -d ${PATH_TO_DATASET}
+```
+
+This outputs the following image 
+
+![CNN](docs/single_image_seg.png)
 
 ## 2. Train and test on the dataset
 

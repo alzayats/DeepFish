@@ -5,6 +5,7 @@ from torchvision import transforms
 import os
 import numpy as np
 import time
+from lcfcn import lcfcn_loss
 from src import utils as ut
 from sklearn.metrics import confusion_matrix
 import skimage
@@ -14,7 +15,7 @@ from skimage.segmentation import watershed
 from skimage.segmentation import find_boundaries
 from scipy import ndimage
 from haven import haven_utils as hu
-
+from haven import haven_img as hi
 
 class LocWrapper(torch.nn.Module):
     def __init__(self, model, opt):
@@ -33,130 +34,76 @@ class LocWrapper(torch.nn.Module):
         return wrappers.vis_on_loader(self, vis_loader, savedir=savedir)
 
     def train_on_batch(self, batch, **extras):
-        self.opt.zero_grad()
+        
         self.train()
-
         images = batch["images"].cuda()
-        counts = batch["counts"].cuda()
-
-        blobs = self.predict_on_batch(batch, method="blobs").squeeze()
-
         points = batch["points"].long().cuda()
+        logits = self.model.forward(images)
+        loss = lcfcn_loss.compute_loss(points=points, probs=logits.sigmoid())
 
-        points_numpy = hu.t2n(points).squeeze()
-        blob_dict = get_blob_dict_base(self, blobs, points_numpy)
-
-        self.train()
-        loss = lc_loss_base(self.model.forward(images), images, points,
-                            counts[None], blob_dict)
-
-
+        self.opt.zero_grad()
         loss.backward()
-
         self.opt.step()
 
         return {"loss_loc":loss.item()}
-
-    def val_on_batch(self, batch, **extras):
-        pred_counts = self.predict_on_batch(batch, method="counts") 
-        pred_blobs = self.predict_on_batch(batch, method="blobs")
-
-        val_dict = {}
-        val_dict["val_loc"] = abs(pred_counts.ravel() - batch["counts"].numpy().ravel())
-            
-        pred_points = blobs2points(pred_blobs[0,0])
-        gt_points = batch["points"].numpy()
-        game_mean = 0.
-        for L in range(4):
-            game_mean += compute_game(pred_points, gt_points, L=L)
-
-        val_dict["val_game"] = np.array([game_mean / (L + 1)])
-
-        return val_dict
-        
-    def predict_on_batch(self, batch, **options):
+    @torch.no_grad()
+    def val_on_batch(self, batch):
         self.eval()
-        # feat_8s, feat_16s, feat_32s = self.model.extract_features(batch["images"].cuda())
+        images = batch["images"].cuda()
+        points = batch["points"].long().cuda()
+        logits = self.model.forward(images)
+        probs = logits.sigmoid().cpu().numpy()
 
-        if options["method"] == "counts":
-            images = batch["images"].cuda()
-            pred_mask = self.model.forward(images).data.max(1)[1].squeeze().cpu().numpy()
+        blobs = lcfcn_loss.get_blobs(probs=probs)
 
-            counts = np.zeros(self.model.n_classes - 1)
-
-            for category_id in np.unique(pred_mask):
-                if category_id == 0:
-                    continue
-                blobs_category = morph.label(pred_mask == category_id)
-                n_blobs = (np.unique(blobs_category) != 0).sum()
-                counts[category_id - 1] = n_blobs
-
-            return counts[None]
-
-        elif options["method"] == "blobs":
-            images = batch["images"].cuda()
-            pred_mask = self.model.forward(images).data.max(1)[1].squeeze().cpu().numpy()
-
-            h, w = pred_mask.shape
-            blobs = np.zeros((self.model.n_classes - 1, h, w), int)
-
-            for category_id in np.unique(pred_mask):
-                if category_id == 0:
-                    continue
-                blobs[category_id - 1] = morph.label(pred_mask == category_id)
-
-            return blobs[None]
-
-        elif options["method"] == "points":
-            images = batch["images"].cuda()
-            pred_mask = self.model.forward(images).data.max(1)[1].squeeze().cpu().numpy()
-
-            h, w = pred_mask.shape
-            blobs = np.zeros((self.model.n_classes - 1, h, w), int)
-
-            for category_id in np.unique(pred_mask):
-                if category_id == 0:
-                    continue
-                blobs[category_id - 1] = morph.label(pred_mask == category_id)
-
-            return blobs[None]
+        return {'val_samples':images.shape[0],'val_loc': abs(float((np.unique(blobs)!=0).sum() - 
+                                (points!=0).sum()))}
         
-    def vis_on_batch(self, batch, savedir):
-        from skimage.segmentation import mark_boundaries
-        from skimage import data, io, segmentation, color
-        from skimage.measure import label
-
+    
+        
+    @torch.no_grad()
+    def vis_on_batch(self, batch, savedir_image):
         self.eval()
-        pred_counts = self.predict_on_batch(batch, method="counts") 
-        pred_blobs = self.predict_on_batch(batch, method="blobs")
+        images = batch["images"].cuda()
+        points = batch["points"].long().cuda()
+        logits = self.model.forward(images)
+        probs = logits.sigmoid().cpu().numpy()
+
+        blobs = lcfcn_loss.get_blobs(probs=probs)
+
+        pred_counts = (np.unique(blobs)!=0).sum()
+        pred_blobs = blobs
+        pred_probs = probs.squeeze()
 
         # loc 
         pred_count = pred_counts.ravel()[0]
         pred_blobs = pred_blobs.squeeze()
+        
+        img_org = hu.get_image(batch["images"],denorm="rgb")
 
-        img = hu.get_image(batch["images"],denorm="rgb")
-        # img_points = hu.get_image(batch["images"],mask=batch["points"].squeeze(), enlarge=1, denorm="rgb")
-        points = hu.zoom(batch["points"],11).squeeze()
-        img_np = hu.f2l(img).squeeze().clip(0,1)
+        # true points
+        y_list, x_list = np.where(batch["points"][0].long().numpy().squeeze())
+        img_peaks = hi.points_on_image(y_list, x_list, img_org, radius=11)
+        text = "%s ground truth" % (batch["points"].sum().item())
+        hi.text_on_image(text=text, image=img_peaks)
 
-        out = color.label2rgb(label(pred_blobs), image=(img_np), image_alpha=1.0, bg_label=0)
-        img_mask = mark_boundaries(out.squeeze(),  label(pred_blobs).squeeze())
+        # pred points 
+        pred_points = lcfcn_loss.blobs2points(pred_blobs).squeeze()
+        y_list, x_list = np.where(pred_points.squeeze())
+        img_pred = hi.mask_on_image(img_org, pred_blobs)
+        # img_pred = hi.points_on_image(y_list, x_list, img_org)
+        text = "%s predicted" % (len(y_list))
+        hi.text_on_image(text=text, image=img_pred)
 
-        out = color.label2rgb(label(points), image=(img_np), image_alpha=1.0, bg_label=0)
-        img_points = mark_boundaries(out.squeeze(),  label(points).squeeze())
-        # img = 255*hu.get_image(batch["images"],mask=batch["points"].squeeze(), enlarge=1, denorm="rgb")
-        # img = im.get_image(0.7*batch["images"] + 0.3*torch.FloatTensor(pred_blobs).squeeze(), denorm="rgb")
-        # img_mask = 0.7*img[0] + 0.3*hu.l2f(hu.gray2cmap(pred_blobs)[0])
-        # if batch["meta"]["index"] == 6:
-        #     print(3)
-        hu.save_image(savedir+"/images/%d.jpg" % batch["meta"]["index"], img_mask)
-        # hu.save_image(savedir+"/images/%d_org.jpg" % batch["meta"]["index"], img)
-        # hu.save_image(savedir+"/images/%d_gt.jpg" % batch["meta"]["index"], img_points)
-        # hu.save_json(savedir+"/images/%d.json" % batch["meta"]["index"], 
-        #             {"pred_count":float(pred_count), "gt_count": float(batch["counts"])})
-
-
-    
+        # heatmap 
+        heatmap = hi.gray2cmap(pred_probs)
+        heatmap = hu.f2l(heatmap)
+        hi.text_on_image(text="lcfcn heatmap", image=heatmap)
+        
+        
+        img_mask = np.hstack([img_peaks, img_pred, heatmap])
+        
+        hu.save_image(savedir_image, img_mask)
 class GAME:
     def __init__(self):
         super().__init__(higher_is_better=False)
@@ -455,12 +402,13 @@ class LocMonitor:
         self.n_samples = 0
 
     def add(self, val_dict):
-        self.ae += val_dict["val_loc"].sum()
-        self.ae_game += val_dict["val_game"].sum()
-        self.n_samples += val_dict["val_loc"].shape[0]
+        self.ae += val_dict["val_loc"]
+        # self.ae_game += val_dict["val_game"].sum()
+        self.n_samples += val_dict["val_samples"]
 
     def get_avg_score(self):
         return {"val_loc":self.ae/ self.n_samples, 
-              "val_game":self.ae_game/ self.n_samples}
+            #   "val_game":self.ae_game/ self.n_samples
+              }
 
 

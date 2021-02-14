@@ -27,7 +27,6 @@ EXP_GROUPS = {
         "fish_loc"],
                       "task": ["loc"],
                         "model":[
-                          "unet",
                            "fcn8"],
                         "batch_size": [1],
                         "transform":["rgb_normalize"],
@@ -40,7 +39,6 @@ EXP_GROUPS = {
         "fish_seg"],
                       "task": ["seg"],
                         "model":[
-                          "unet",
                            "fcn8"],
                         "batch_size": [1],
                         "transform":["rgb_normalize"],

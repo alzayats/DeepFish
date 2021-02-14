@@ -18,26 +18,15 @@ from torch.utils.data import DataLoader
 import exp_configs
 from torch.utils.data.sampler import RandomSampler
 from src import wrappers
+from haven import haven_wizard as hw
 
 
-
-def trainval(exp_dict, savedir_base, reset, metrics_flag=True, datadir=None, cuda=False):
-    # bookkeeping
-    # ---------------
-
-    # get experiment directory
-    exp_id = hu.hash_dict(exp_dict)
-    savedir = os.path.join(savedir_base, exp_id)
-
-    if reset:
-        # delete and backup experiment
-        hc.delete_experiment(savedir, backup_flag=True)
-    
-    # create folder and save the experiment dictionary
-    os.makedirs(savedir, exist_ok=True)
-    hu.save_json(os.path.join(savedir, 'exp_dict.json'), exp_dict)
-    print(pprint.pprint(exp_dict))
-    print('Experiment saved in %s' % savedir)
+def trainval(exp_dict, savedir, args):
+    """
+    exp_dict: dictionary defining the hyperparameters of the experiment
+    savedir: the directory where the experiment will be saved
+    args: arguments passed through the command line
+    """
 
 
     # set seed
@@ -45,7 +34,7 @@ def trainval(exp_dict, savedir_base, reset, metrics_flag=True, datadir=None, cud
     seed = 42
     np.random.seed(seed)
     torch.manual_seed(seed)
-    if cuda:
+    if args.use_cuda:
         device = 'cuda'
         torch.cuda.manual_seed_all(seed)
         assert torch.cuda.is_available(), 'cuda is not, available please run with "-c 0"'
@@ -58,11 +47,11 @@ def trainval(exp_dict, savedir_base, reset, metrics_flag=True, datadir=None, cud
     # Load val set and train set
     val_set = datasets.get_dataset(dataset_name=exp_dict["dataset"], split="val",
                                    transform=exp_dict.get("transform"),
-                                   datadir=datadir)
+                                   datadir=args.datadir)
     train_set = datasets.get_dataset(dataset_name=exp_dict["dataset"],
                                      split="train", 
                                      transform=exp_dict.get("transform"),
-                                     datadir=datadir)
+                                     datadir=args.datadir)
     
     # Load train loader, val loader, and vis loader
     train_loader = DataLoader(train_set, 
@@ -108,7 +97,7 @@ def trainval(exp_dict, savedir_base, reset, metrics_flag=True, datadir=None, cud
         score_dict = {"epoch": epoch}
 
         # visualize
-        # model.vis_on_loader(vis_loader, savedir=os.path.join(savedir, "images"))
+        model.vis_on_loader(vis_loader, savedir=os.path.join(savedir, "images"))
 
         # validate
         score_dict.update(model.val_on_loader(val_loader))
@@ -128,43 +117,32 @@ def trainval(exp_dict, savedir_base, reset, metrics_flag=True, datadir=None, cud
 
 
 if __name__ == '__main__':
+    # 8. define a list of experiments
+    import exp_configs
+
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-e', '--exp_group_list', nargs='+')
-    parser.add_argument('-sb', '--savedir_base', required=True)
-    parser.add_argument('-d', '--datadir', required=True)
-    parser.add_argument('-r', '--reset',  default=0, type=int)
-    parser.add_argument('-ei', '--exp_id', default=None)
-    parser.add_argument('-c', '--cuda', type=int, default=1)
+    parser.add_argument('-e', '--exp_group_list', nargs="+",
+                        help='Define which exp groups to run.')
+    parser.add_argument('-sb', '--savedir_base', default=None,
+                        help='Define the base directory where the experiments will be saved.')
+    parser.add_argument('-d', '--datadir', default=None,
+                        help='Define the dataset directory.')
+    parser.add_argument("-r", "--reset",  default=0, type=int,
+                        help='Reset or resume the experiment.')
+    parser.add_argument("--debug",  default=False, type=int,
+                        help='Debug mode.')
+    parser.add_argument("-ei", "--exp_id", default=None,
+                        help='Run a specific experiment based on its id.')
+    parser.add_argument("-j", "--run_jobs", default=0, type=int,
+                        help='Run the experiments as jobs in the cluster.')
+    parser.add_argument("-nw", "--num_workers", type=int, default=0,
+                        help='Specify the number of workers in the dataloader.')
+    parser.add_argument("-v", "--visualize_notebook", type=str, default='',
+                        help='Create a jupyter file to visualize the results.')
+    parser.add_argument("-uc", "--use_cuda", type=int, default=1)
 
-    args = parser.parse_args()
+    args, others = parser.parse_known_args()
 
-
-    # Collect experiments
-    # -------------------
-    if args.exp_id is not None:
-        # select one experiment
-        savedir = os.path.join(args.savedir_base, args.exp_id)
-        exp_dict = hu.load_json(os.path.join(savedir, 'exp_dict.json'))        
-        
-        exp_list = [exp_dict]
-        
-    else:
-        # select exp group
-        exp_list = []
-        for exp_group_name in args.exp_group_list:
-            exp_list += exp_configs.EXP_GROUPS[exp_group_name]
-
-    ####
-    # Run experiments or View them
-    # ----------------------------
-    
-    # run experiments
-    for exp_dict in exp_list:
-        # do trainval
-        trainval(exp_dict=exp_dict,
-                savedir_base=args.savedir_base,
-                reset=args.reset,
-                datadir=args.datadir,
-                cuda=args.cuda)
-
+    # 9. Launch experiments using magic command
+    hw.run_wizard(func=trainval, exp_groups=exp_configs.EXP_GROUPS, args=args)

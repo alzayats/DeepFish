@@ -63,7 +63,8 @@ def vis_on_loader(model, vis_loader, savedir):
     split = vis_loader.dataset.split
     for i, batch in enumerate(vis_loader):
         print("%d - visualizing %s image - savedir:%s" % (i, batch["meta"]["split"][0], savedir.split("/")[-2]))
-        model.vis_on_batch(batch, savedir=savedir)
+        model.vis_on_batch(batch, 
+        savedir_image=os.path.join(savedir, f'{i}.png'))
         
 
 @torch.no_grad()

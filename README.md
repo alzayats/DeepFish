@@ -1,32 +1,45 @@
 
 
-# DeepFish (A Realistic Fish-Habitat Dataset to Evaluate Algorithms for Underwater Visual Analysis) [[Paper]](https://www.nature.com/articles/s41598-020-71639-x)   
-[![DOI](https://zenodo.org/badge/206528410.svg)](https://zenodo.org/badge/latestdoi/206528410)
+## DeepFish (A Realistic Fish-Habitat Dataset to Evaluate Algorithms for Underwater Visual Analysis) 
 
-### Accepted at Scientific Reports (Nature)
+### Accepted at Nature Scientific Reports [[Paper]](https://www.nature.com/articles/s41598-020-71639-x)   
 
-This repository contains the code to reproduce the experiments of the paper.
-*  DeepFish  [Paper](https://www.nature.com/articles/s41598-020-71639-x).
-*  Download the DeepFish dataset from [here](https://cloudstor.aarnet.edu.au/plus/s/NfjObIhtUYO6332)
-
+![CNN](docs/Figure_4.png)
 ![counting](docs/count.gif) 
 ![Segmentation](docs/seg.gif) 
 
 
 ## Install requirements
-`pip install -r requirements.txt`  which installs [haven-ai](https://github.com/haven-ai/haven-ai) a library for managing reproducible large scale experments.
+`pip install -r requirements.txt` 
 
-### Reproducing paper experiments
-![CNN](docs/Figure_4.png)
+`pip install git+https://github.com/ElementAI/LCFCN`
 
+## Download
 
+*  Download the DeepFish dataset from [here](https://cloudstor.aarnet.edu.au/plus/s/NfjObIhtUYO6332)
 
-#### Installation
-Download the repository:
+## 1. Train and test on single image
 
-`git clone https://github.com/alzayats/DeepFish.git`
+### Localization
+```
+python scripts/train_single_image.py -e loc -d ${PATH_TO_DATASET}
+```
 
-Experiment hyperparameters are defined in `exp_configs.py`
+This outputs the following image 
+
+![CNN](docs/single_image_loc.png)
+
+### Segmentation
+
+```
+python scripts/train_single_image.py -e seg -d ${PATH_TO_DATASET}
+```
+
+This outputs the following image 
+
+![CNN](docs/single_image_seg.png)
+
+## 2. Train and test on the dataset
 
 Run the following command to reproduce the experiments in the paper:
 
@@ -34,13 +47,13 @@ Run the following command to reproduce the experiments in the paper:
 
 The variables (`${...}`) can be substituted with the following values:
 
-* `TASK` : clf, reg, loc, seg
+* `TASK` : loc, seg, clf, reg
 * `SAVEDIR_BASE`: Absolute path to where results will be saved
 * `DATADIR`: Absolute path containing the downloaded datasets
 
+Experiment hyperparameters are defined in `exp_configs.py`
 
-
-### Citations
+## Citations
 
 If you use the DeepFish dataset in your work, please cite it as:
 

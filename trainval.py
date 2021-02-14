@@ -94,7 +94,7 @@ def trainval(exp_dict, savedir_base, reset, metrics_flag=True, datadir=None, cud
 
     if os.path.exists(score_list_path):
         # resume experiment
-        score_list = ut.load_pkl(score_list_path)
+        score_list = hu.load_pkl(score_list_path)
         model.load_state_dict(torch.load(model_path))
         opt.load_state_dict(torch.load(opt_path))
         s_epoch = score_list[-1]["epoch"] + 1

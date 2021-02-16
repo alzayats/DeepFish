@@ -98,7 +98,6 @@ def trainval(exp_dict, savedir, args):
 
         # visualize
         model.vis_on_loader(vis_loader, savedir=os.path.join(savedir, "images"))
-
         # validate
         score_dict.update(model.val_on_loader(val_loader))
         

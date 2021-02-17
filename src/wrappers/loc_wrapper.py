@@ -28,7 +28,8 @@ class LocWrapper(torch.nn.Module):
 
     def val_on_loader(self, val_loader):
         val_monitor = LocMonitor()
-        return wrappers.val_on_loader(self, val_loader, val_monitor=val_monitor)
+        game_monitor = GAME(6)
+        return wrappers.val_on_loader(self, val_loader, val_monitor=val_monitor, game_monitor=game_monitor)
 
     def vis_on_loader(self, vis_loader, savedir):
         return wrappers.vis_on_loader(self, vis_loader, savedir=savedir)
@@ -56,8 +57,8 @@ class LocWrapper(torch.nn.Module):
 
         blobs = lcfcn_loss.get_blobs(probs=probs)
 
-        return {'val_samples':images.shape[0],'val_loc': abs(float((np.unique(blobs)!=0).sum() - 
-                                (points!=0).sum()))}
+        return {'val_samples':images.shape[0],'val_loc': abs(float((np.unique(blobs)!=0).sum() -
+                                                                     (points!=0).sum()))}, points, blobs
         
     
         
@@ -105,31 +106,31 @@ class LocWrapper(torch.nn.Module):
         
         hu.save_image(savedir_image, img_mask)
 class GAME:
-    def __init__(self):
-        super().__init__(higher_is_better=False)
+    def __init__(self, density=4):
+        # super().__init__(higher_is_better=False)
+        super().__init__()
 
+        self.density = density
         self.sum = 0.
         self.n_batches = 0.
 
         self.metric_name = type(self).__name__
         self.score_dict = {"metric_name": type(self).__name__}
-        
+        self.score_dict["density"] = self.density
+
         self.game_dict = {}
-        for L in range(4):
-            self.game_dict[L] = 0.
+        for L in range(self.density):
+            self.game_dict[L+1] = 0.
 
         self.game = 0.
 
-    def add_batch(self, model, batch, **options):
-        pred_blobs = ms.t2n(model.predict(batch, method="blobs")).squeeze()
-        assert pred_blobs.ndim == 2
-        pred_points = blobs2points(pred_blobs).squeeze()
-        gt_points = ms.t2n(batch["points"]).squeeze()
-
+    def add_batch(self, gt_points, blobs, **options):
+        gt_points = hu.t2n(gt_points).squeeze()
+        pred_points = blobs2points(blobs).squeeze()
         game_mean = 0.
-        for L in range(4):
+        for L in range(self.density):
             game_sum = compute_game(pred_points, gt_points, L=L)
-            self.game_dict[L] += game_sum
+            self.game_dict[L+1] += game_sum
             game_mean += game_sum
 
         self.game += game_mean / (L + 1)
@@ -141,11 +142,10 @@ class GAME:
         self.score_dict["score"] = curr_score
 
         # The Rest
-        for L in range(4):
-            self.score_dict["GAME%d"%L] = self.game_dict[L]/self.n_batches
-        
-        return self.score_dict
+        for L in range(self.density):
+            self.score_dict["GAME%d"%(L+1)] = self.game_dict[L+1]/self.n_batches
 
+        return self.score_dict
 
 # -----------------------
 # Utils
@@ -400,15 +400,18 @@ class LocMonitor:
         self.ae = 0
         self.ae_game = 0
         self.n_samples = 0
+        self.test_dict ={}
+        self.game_dict ={}
 
     def add(self, val_dict):
         self.ae += val_dict["val_loc"]
-        # self.ae_game += val_dict["val_game"].sum()
         self.n_samples += val_dict["val_samples"]
 
-    def get_avg_score(self):
-        return {"val_loc":self.ae/ self.n_samples, 
-            #   "val_game":self.ae_game/ self.n_samples
-              }
+    def get_avg_score(self, game_dict):
+        self.val_dict = {"val_loc":self.ae/ self.n_samples, "GAME_score":game_dict["score"]/ self.n_samples,}
+        for L in range(game_dict["density"]):
+            self.game_dict.update({"GAME%d"%(L+1):game_dict["GAME%d"%(L+1)]})
+        self.val_dict.update(self.game_dict)
+        return self.val_dict
 
 

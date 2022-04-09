@@ -28,8 +28,9 @@ class LocWrapper(torch.nn.Module):
 
     def val_on_loader(self, val_loader):
         val_monitor = LocMonitor()
-        game_monitor = GAME(6)
-        return wrappers.val_on_loader(self, val_loader, val_monitor=val_monitor, game_monitor=game_monitor)
+        # game_monitor = GAME(6)
+        # return wrappers.val_on_loader(self, val_loader, val_monitor=val_monitor, game_monitor=game_monitor)
+        return wrappers.val_on_loader(self, val_loader, val_monitor=val_monitor)
 
     def vis_on_loader(self, vis_loader, savedir):
         return wrappers.vis_on_loader(self, vis_loader, savedir=savedir)

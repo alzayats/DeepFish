@@ -37,7 +37,7 @@ def train_on_loader(model, train_loader):
     return train_monitor.get_avg_score()
 
 @torch.no_grad()
-def val_on_loader(model, val_loader, val_monitor, game_monitor):
+def val_on_loader(model, val_loader, val_monitor):
     model.eval()
 
     n_batches = len(val_loader)
@@ -45,9 +45,10 @@ def val_on_loader(model, val_loader, val_monitor, game_monitor):
     for i, batch in enumerate(tqdm.tqdm(val_loader)):
         score, gt_points, blobs = model.val_on_batch(batch)
         val_monitor.add(score)
-        game_monitor.add_batch(gt_points, blobs)
+        # game_monitor.add_batch(gt_points, blobs)
 
-    return val_monitor.get_avg_score(game_monitor.get_score_dict())
+    # return val_monitor.get_avg_score(game_monitor.get_score_dict())
+    return val_monitor.get_avg_score()
 
 
 @torch.no_grad()

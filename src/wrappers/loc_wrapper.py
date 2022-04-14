@@ -58,8 +58,11 @@ class LocWrapper(torch.nn.Module):
 
         blobs = lcfcn_loss.get_blobs(probs=probs)
 
-        return {'val_samples':images.shape[0],'val_loc': abs(float((np.unique(blobs)!=0).sum() -
-                                                                     (points!=0).sum()))}, points, blobs
+        # return {'val_samples':images.shape[0],'val_loc': abs(float((np.unique(blobs)!=0).sum() -
+        #                                                              (points!=0).sum()))}, points, blobs
+
+        return {'val_samples': images.shape[0], 'val_loc': abs(float((np.unique(blobs) != 0).sum() -
+                                                                 (points != 0).sum()))}
         
     
         
@@ -408,11 +411,16 @@ class LocMonitor:
         self.ae += val_dict["val_loc"]
         self.n_samples += val_dict["val_samples"]
 
-    def get_avg_score(self, game_dict):
-        self.val_dict = {"val_loc":self.ae/ self.n_samples, "GAME_score":game_dict["score"]/ self.n_samples,}
-        for L in range(game_dict["density"]):
-            self.game_dict.update({"GAME%d"%(L+1):game_dict["GAME%d"%(L+1)]})
-        self.val_dict.update(self.game_dict)
-        return self.val_dict
+    # def get_avg_score(self, game_dict):
+    #     self.val_dict = {"val_loc":self.ae/ self.n_samples, "GAME_score":game_dict["score"]/ self.n_samples,}
+    #     for L in range(game_dict["density"]):
+    #         self.game_dict.update({"GAME%d"%(L+1):game_dict["GAME%d"%(L+1)]})
+    #     self.val_dict.update(self.game_dict)
+    #     return self.val_dict
+
+    def get_avg_score(self):
+        return {"val_loc":self.ae/ self.n_samples,
+            #   "val_game":self.ae_game/ self.n_samples
+              }
 
 

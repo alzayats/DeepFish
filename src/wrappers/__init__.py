@@ -43,7 +43,8 @@ def val_on_loader(model, val_loader, val_monitor):
     n_batches = len(val_loader)
     print('Validating')
     for i, batch in enumerate(tqdm.tqdm(val_loader)):
-        score, gt_points, blobs = model.val_on_batch(batch)
+        # score, gt_points, blobs = model.val_on_batch(batch)
+        score = model.val_on_batch(batch)
         val_monitor.add(score)
         # game_monitor.add_batch(gt_points, blobs)
 

@@ -10,6 +10,7 @@ from sklearn.metrics import confusion_matrix
 import skimage
 from src import wrappers
 from torchvision import transforms
+from haven import haven_utils as hu
 
 
 class ClfWrapper(torch.nn.Module):
@@ -51,13 +52,14 @@ class ClfWrapper(torch.nn.Module):
         logits = self.model.forward(images)
         return (torch.sigmoid(logits) > 0.5).float()
         
-    def vis_on_batch(self, batch, savedir):
+    def vis_on_batch(self, batch, savedir_image):
         self.eval()
         # clf 
         pred_labels = float(self.predict_on_batch(batch))
         img = hu.get_image(batch["image_original"], denorm="rgb")
-        hu.save_image(savedir+"/images/%d.jpg" % batch["meta"]["index"], img)
-        hu.save_json(savedir+"/images/%d.json" % batch["meta"]["index"], 
+        img = np.array(img)
+        hu.save_image(savedir_image+"/images/%d.jpg" % batch["meta"]["index"], img)
+        hu.save_json(savedir_image+"/images/%d.json" % batch["meta"]["index"],
                     {"pred_label":float(pred_labels), "gt_label": float(batch["labels"])})
 
 

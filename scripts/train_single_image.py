@@ -46,8 +46,12 @@ if __name__ == "__main__":
 
     if args.exp_config == 'loc':
         batch = torch.utils.data.dataloader.default_collate([train_set[3]])
-    else:
+    elif args.exp_config == 'seg':
         batch = torch.utils.data.dataloader.default_collate([train_set[0]])
+    elif args.exp_config == 'reg':
+        batch = torch.utils.data.dataloader.default_collate([train_set[7]])
+    else:
+        batch = torch.utils.data.dataloader.default_collate([train_set[10]])
 
     for e in range(50):
         score_dict = model.train_on_batch(batch)

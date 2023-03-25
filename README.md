@@ -8,6 +8,8 @@
 ![counting](docs/count.gif) 
 ![Segmentation](docs/seg.gif) 
 
+## To install DeepFish as a Python package for access outside the repo:
+`python setup.py install` OR `pip install -e .`
 
 ## Install requirements
 `pip install -r requirements.txt` 

@@ -4,7 +4,7 @@
   <!-- Site made with Mobirise Website Builder v4.10.8, https://mobirise.com -->
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="generator" content="Mobirise v4.10.8, mobirise.com">
+  <meta name="generator" content="DeepFish, https://alzayats.github.io/DeepFish/">
   <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
   <link rel="shortcut icon" href="assets/images/logo.png" type="image/x-icon">
   <meta name="description" content="DeepFish Dataset">
@@ -102,7 +102,8 @@
                 <div class="card cart-block">
                     <div class="card-block">
                         <h4 class="card-title text-xs-center">Research Paper</h4>
-                        <p class="card-text">https://arxiv.org/abs/2008.12603</p>
+<!--                        <p class="card-text">A realistic fish-habitat dataset to evaluate algorithms for underwater visual analysis</p>-->
+                        <p class="card-text"><a href="https://www.nature.com/articles/s41598-020-71639-x" target="_blank">A realistic fish-habitat dataset to evaluate algorithms for underwater visual analysis</a></p>
                     </div>
                 </div>
             </div>
@@ -110,7 +111,8 @@
                 <div class="card cart-block">
                     <div class="card-block">
                         <h4 class="card-title text-xs-center">Source Code</h4>
-                        <p class="card-text">https://github.com/alzayats/DeepFish</p>
+<!--                        <p class="card-text">https://github.com/alzayats/DeepFish</p>-->
+                        <p class="card-text"><a href="https://github.com/alzayats/DeepFish" target="_blank">https://github.com/alzayats/DeepFish</a></p>
                     </div>
                 </div>
             </div>
@@ -118,7 +120,33 @@
                 <div class="card cart-block">
                     <div class="card-block">
                         <h4 class="card-title text-xs-center">Citations</h4>
-                        <p class="card-text">IEEE style citation: “Alzayat Saleh, Issam H. Laradji, Dmitry A. Konovalov, David Vazquez, MichaelBradley, and Marcus Sheaves, “Where is the Fish: An Underwater Fish Species Image Dataset for Deep Learning,” Scientific Reports,............ ”</p>
+<!--                        <p class="card-text">Saleh, A., Laradji, I.H., Konovalov, D.A. et al. A realistic fish-habitat dataset to evaluate algorithms for underwater visual analysis. Sci Rep 10, 14671 (2020). https://doi.org/10.1038/s41598-020-71639-x</p>-->
+                        <p class="card-text">If you use the DeepFish dataset in your work, please cite it as:</p>
+<pre style="white-space: pre-wrap;">
+<code id="citation">@article{saleh2020realistic,
+  title={A realistic fish-habitat dataset to evaluate algorithms for underwater visual analysis},
+  author={Saleh, Alzayat and Laradji, Issam H and Konovalov, Dmitry A and Bradley, Michael and Vazquez, David and Sheaves, Marcus},
+  journal={Scientific Reports},
+  volume={10},
+  number={1},
+  pages={14671},
+  year={2020},
+  publisher={Nature Publishing Group UK London},
+  doi={https://doi.org/10.1038/s41598-020-71639-x}
+}
+</code>
+</pre>
+<button onclick="copyToClipboard()">Copy</button>
+
+<script>
+function copyToClipboard() {
+  var range = document.createRange();
+  range.selectNode(document.getElementById("citation"));
+  window.getSelection().removeAllRanges();
+  window.getSelection().addRange(range);
+  document.execCommand("copy");
+}
+</script>
                     </div>
                 </div>
             </div>

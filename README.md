@@ -18,7 +18,7 @@
 
 ## Download
 
-*  Download the DeepFish dataset from [here](https://cloudstor.aarnet.edu.au/plus/s/NfjObIhtUYO6332)
+*  Download the DeepFish dataset from [here](http://data.qld.edu.au/public/Q5842/2020-AlzayatSaleh-00e364223a600e83bd9c3f5bcd91045-DeepFish/)
 
 ## 1. Train and test on single image
 

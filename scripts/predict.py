@@ -45,8 +45,15 @@ if __name__ == "__main__":
     # opt = torch.optim.Adam(model_original.parameters(),
     #                     lr=1e-5, weight_decay=0.0005)
 
+    # Load trained model
+    model_path = 'path_to_your_model_file.pth'  # replace with your model file path
+    model_original = torch.load(model_path)
+
+    # Create wrapper
     model = wrappers.get_wrapper(exp_dict["wrapper"], model=model_original).cuda()
 
+    # Create DataLoader
     vis_loader = torch.utils.data.DataLoader(val_set, shuffle=False, batch_size=1)
 
+    # Visualize on loader
     model.vis_on_loader(vis_loader, savedir=os.path.join(args.savedir_base, "images"))

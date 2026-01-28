@@ -54,13 +54,30 @@ class RegWrapper(torch.nn.Module):
         
     def vis_on_batch(self, batch, savedir_image):
         self.eval()
-        
+
         pred_counts = self.predict_on_batch(batch)
         img = hu.get_image(batch["image_original"], denorm="rgb")
         img = np.array(img)
         hu.save_image(savedir_image+"/images/%d.jpg" % batch["meta"]["index"], img)
         hu.save_json(savedir_image+"/images/%d.json" % batch["meta"]["index"],
                     {"pred_counts":float(pred_counts), "gt_counts": float(batch["counts"])})
+
+    def vis_on_batch_inference(self, batch, savedir_image):
+        """Visualize regression predictions without ground truth comparison.
+
+        This method outputs the image and predicted count without requiring ground truth counts.
+        """
+        self.eval()
+        pred_counts = self.predict_on_batch(batch)
+
+        # Try to get original image if available, otherwise use transformed image
+        if "image_original" in batch:
+            img = hu.get_image(batch["image_original"], denorm="rgb")
+        else:
+            img = hu.get_image(batch["images"], denorm="rgb")
+        img = np.array(img)
+
+        return {"prediction": float(pred_counts), "image": img}
 
 
 

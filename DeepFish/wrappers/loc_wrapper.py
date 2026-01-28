@@ -67,6 +67,38 @@ class LocWrapper(torch.nn.Module):
     
         
     @torch.no_grad()
+    def predict_on_batch(self, batch):
+        """Run prediction on a batch and return counts and point coordinates.
+
+        Returns:
+            dict: Dictionary containing:
+                - count: Number of predicted fish
+                - points: List of (y, x) coordinates for each predicted point
+                - probs: Raw probability map
+        """
+        self.eval()
+        images = batch["images"].cuda()
+        logits = self.model.forward(images)
+        probs = logits.sigmoid().cpu().numpy()
+
+        blobs = lcfcn_loss.get_blobs(probs=probs)
+        pred_blobs = blobs.squeeze()
+
+        # Get predicted points from blobs
+        pred_points = lcfcn_loss.blobs2points(pred_blobs).squeeze()
+        y_list, x_list = np.where(pred_points.squeeze())
+
+        pred_count = len(y_list)
+        point_coords = [(int(y), int(x)) for y, x in zip(y_list, x_list)]
+
+        return {
+            "count": pred_count,
+            "points": point_coords,
+            "probs": probs.squeeze(),
+            "blobs": pred_blobs
+        }
+
+    @torch.no_grad()
     def vis_on_batch(self, batch, savedir_image):
         self.eval()
         images = batch["images"].cuda()
@@ -80,10 +112,10 @@ class LocWrapper(torch.nn.Module):
         pred_blobs = blobs
         pred_probs = probs.squeeze()
 
-        # loc 
+        # loc
         pred_count = pred_counts.ravel()[0]
         pred_blobs = pred_blobs.squeeze()
-        
+
         img_org = hu.get_image(batch["images"],denorm="rgb")
 
         # true points
@@ -92,7 +124,7 @@ class LocWrapper(torch.nn.Module):
         text = "%s ground truth" % (batch["points"].sum().item())
         hi.text_on_image(text=text, image=img_peaks)
 
-        # pred points 
+        # pred points
         pred_points = lcfcn_loss.blobs2points(pred_blobs).squeeze()
         y_list, x_list = np.where(pred_points.squeeze())
         img_pred = hi.mask_on_image(img_org, pred_blobs)
@@ -100,14 +132,44 @@ class LocWrapper(torch.nn.Module):
         text = "%s predicted" % (len(y_list))
         hi.text_on_image(text=text, image=img_pred)
 
-        # heatmap 
+        # heatmap
         heatmap = hi.gray2cmap(pred_probs)
         heatmap = hu.f2l(heatmap)
         hi.text_on_image(text="lcfcn heatmap", image=heatmap)
-        
-        
+
+
         img_mask = np.hstack([img_peaks, img_pred, heatmap])
-        
+
+        hu.save_image(savedir_image, img_mask)
+
+    @torch.no_grad()
+    def vis_on_batch_inference(self, batch, savedir_image):
+        """Visualize predictions without ground truth comparison.
+
+        This method creates a visualization showing only the predicted points
+        and heatmap, without requiring ground truth annotations.
+        """
+        self.eval()
+        pred = self.predict_on_batch(batch)
+        pred_probs = pred["probs"]
+        pred_blobs = pred["blobs"]
+
+        img_org = hu.get_image(batch["images"], denorm="rgb")
+
+        # pred points overlay on image
+        pred_points = lcfcn_loss.blobs2points(pred_blobs).squeeze()
+        y_list, x_list = np.where(pred_points.squeeze())
+        img_pred = hi.mask_on_image(img_org, pred_blobs)
+        text = "%s predicted" % pred["count"]
+        hi.text_on_image(text=text, image=img_pred)
+
+        # heatmap
+        heatmap = hi.gray2cmap(pred_probs)
+        heatmap = hu.f2l(heatmap)
+        hi.text_on_image(text="lcfcn heatmap", image=heatmap)
+
+        img_mask = np.hstack([img_pred, heatmap])
+
         hu.save_image(savedir_image, img_mask)
 class GAME:
     def __init__(self, density=4):

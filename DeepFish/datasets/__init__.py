@@ -1,6 +1,6 @@
 
 # from . import trancos, fish_reg
-from . import fish_clf, fish_reg, fish_loc, fish_seg
+from . import fish_clf, fish_reg, fish_loc, fish_seg, image_folder
 from torchvision import transforms
 import cv2, os
 from src import utils as ut
@@ -11,10 +11,18 @@ import pandas as pd
 import  numpy as np
 import os
 
-def get_dataset(dataset_name, split, transform=None, 
+def get_dataset(dataset_name, split, transform=None,
                 datadir=None, habitat=None):
 
     transform = get_transformer(transform, split)
+
+    # Handle image_folder dataset for simple inference
+    if dataset_name == "image_folder":
+        dataset = image_folder.ImageFolderDataset(
+            image_dir=datadir,
+            transform=transform
+        )
+        return dataset
 
     if dataset_name == "fish_clf":
         dataset = fish_clf.FishClf(split,

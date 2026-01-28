@@ -71,7 +71,7 @@ class SegWrapper(torch.nn.Module):
         self.eval()
         pred_mask = self.predict_on_batch(batch)
 
-       
+
 
         img = hu.get_image(batch["images"], denorm="rgb")
         img_np = np.array(img)
@@ -81,6 +81,27 @@ class SegWrapper(torch.nn.Module):
         out = color.label2rgb(label(batch["mask_classes"][0]), image=(img_np), image_alpha=1.0, bg_label=0)
         img_gt = mark_boundaries(out.squeeze(),  label(batch["mask_classes"]).squeeze())
         hu.save_image(savedir_image, np.hstack([img_gt, img_mask]))
+
+    def vis_on_batch_inference(self, batch, savedir_image):
+        """Visualize segmentation predictions without ground truth comparison.
+
+        This method creates a visualization showing only the predicted segmentation
+        mask overlaid on the original image, without requiring ground truth masks.
+        """
+        from skimage.segmentation import mark_boundaries
+        from skimage import color
+        from skimage.measure import label
+
+        self.eval()
+        pred_mask = self.predict_on_batch(batch)
+
+        img = hu.get_image(batch["images"], denorm="rgb")
+        img_np = np.array(img)
+        pm = pred_mask.squeeze()
+        out = color.label2rgb(label(pm), image=(img_np), image_alpha=1.0, bg_label=0)
+        img_mask = mark_boundaries(out.squeeze(), label(pm).squeeze())
+
+        hu.save_image(savedir_image, img_mask)
                     
 
 class SegMonitor:

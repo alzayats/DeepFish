@@ -54,13 +54,30 @@ class ClfWrapper(torch.nn.Module):
         
     def vis_on_batch(self, batch, savedir_image):
         self.eval()
-        # clf 
+        # clf
         pred_labels = float(self.predict_on_batch(batch))
         img = hu.get_image(batch["image_original"], denorm="rgb")
         img = np.array(img)
         hu.save_image(savedir_image+"/images/%d.jpg" % batch["meta"]["index"], img)
         hu.save_json(savedir_image+"/images/%d.json" % batch["meta"]["index"],
                     {"pred_label":float(pred_labels), "gt_label": float(batch["labels"])})
+
+    def vis_on_batch_inference(self, batch, savedir_image):
+        """Visualize classification predictions without ground truth comparison.
+
+        This method outputs the image and prediction without requiring ground truth labels.
+        """
+        self.eval()
+        pred_labels = float(self.predict_on_batch(batch))
+
+        # Try to get original image if available, otherwise use transformed image
+        if "image_original" in batch:
+            img = hu.get_image(batch["image_original"], denorm="rgb")
+        else:
+            img = hu.get_image(batch["images"], denorm="rgb")
+        img = np.array(img)
+
+        return {"prediction": pred_labels, "image": img}
 
 
 class ClfMonitor:

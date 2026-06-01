@@ -6,10 +6,10 @@ import os
 import numpy as np
 import time
 from lcfcn import lcfcn_loss
-from src import utils as ut
+from DeepFish import utils as ut
 from sklearn.metrics import confusion_matrix
 import skimage
-from src import wrappers
+from DeepFish import wrappers
 from skimage import morphology as morph
 from skimage.segmentation import watershed
 from skimage.segmentation import find_boundaries
@@ -36,10 +36,11 @@ class LocWrapper(torch.nn.Module):
         return wrappers.vis_on_loader(self, vis_loader, savedir=savedir)
 
     def train_on_batch(self, batch, **extras):
-        
+
         self.train()
-        images = batch["images"].cuda()
-        points = batch["points"].long().cuda()
+        device = next(self.model.parameters()).device
+        images = batch["images"].to(device)
+        points = batch["points"].long().to(device)
         logits = self.model.forward(images)
         loss = lcfcn_loss.compute_loss(points=points, probs=logits.sigmoid())
 
@@ -51,8 +52,9 @@ class LocWrapper(torch.nn.Module):
     @torch.no_grad()
     def val_on_batch(self, batch):
         self.eval()
-        images = batch["images"].cuda()
-        points = batch["points"].long().cuda()
+        device = next(self.model.parameters()).device
+        images = batch["images"].to(device)
+        points = batch["points"].long().to(device)
         logits = self.model.forward(images)
         probs = logits.sigmoid().cpu().numpy()
 
@@ -77,7 +79,8 @@ class LocWrapper(torch.nn.Module):
                 - probs: Raw probability map
         """
         self.eval()
-        images = batch["images"].cuda()
+        device = next(self.model.parameters()).device
+        images = batch["images"].to(device)
         logits = self.model.forward(images)
         probs = logits.sigmoid().cpu().numpy()
 
@@ -101,8 +104,9 @@ class LocWrapper(torch.nn.Module):
     @torch.no_grad()
     def vis_on_batch(self, batch, savedir_image):
         self.eval()
-        images = batch["images"].cuda()
-        points = batch["points"].long().cuda()
+        device = next(self.model.parameters()).device
+        images = batch["images"].to(device)
+        points = batch["points"].long().to(device)
         logits = self.model.forward(images)
         probs = logits.sigmoid().cpu().numpy()
 
@@ -143,14 +147,16 @@ class LocWrapper(torch.nn.Module):
         hu.save_image(savedir_image, img_mask)
 
     @torch.no_grad()
-    def vis_on_batch_inference(self, batch, savedir_image):
+    def vis_on_batch_inference(self, batch, savedir_image, pred=None):
         """Visualize predictions without ground truth comparison.
 
         This method creates a visualization showing only the predicted points
-        and heatmap, without requiring ground truth annotations.
+        and heatmap, without requiring ground truth annotations. Pass a `pred`
+        dict (from predict_on_batch) to avoid running the model a second time.
         """
         self.eval()
-        pred = self.predict_on_batch(batch)
+        if pred is None:
+            pred = self.predict_on_batch(batch)
         pred_probs = pred["probs"]
         pred_blobs = pred["blobs"]
 

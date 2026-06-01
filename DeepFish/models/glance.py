@@ -9,8 +9,8 @@ import torchvision
 # from haven._toolbox import misc as ms
 import numpy as np
 import shutil
-from src import utils as ut
-from src import models as md
+from DeepFish import utils as ut
+from DeepFish import models as md
 # from models.counts2points import helpers
 from torchvision.transforms import functional as FT
 from torch.autograd import Function

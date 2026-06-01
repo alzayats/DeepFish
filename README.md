@@ -60,6 +60,40 @@ The variables (`${...}`) can be substituted with the following values:
 
 Experiment hyperparameters are defined in `exp_configs.py`
 
+## 3. Predict on your own images or video
+
+To run a trained model on **your own data** (arbitrary images or a video you
+recorded) without the DeepFish dataset structure (no CSV files or masks needed),
+use `scripts/predict_simple.py`. It runs on GPU or CPU automatically.
+
+### On a folder of images
+```
+python scripts/predict_simple.py -i ${PATH_TO_IMAGES} -m ${PATH_TO_MODEL}.pth -t loc -o output/
+```
+
+### On a video
+Frames are extracted automatically. Use `--frame_stride` to sample every Nth
+frame (e.g. one frame every half second for a 30 fps clip with `--frame_stride 15`):
+```
+python scripts/predict_simple.py --video ${PATH_TO_VIDEO}.mp4 -m ${PATH_TO_MODEL}.pth -t loc -o output/ --frame_stride 15
+```
+
+`-t/--task` can be `loc` (localization/counting via points), `seg` (segmentation),
+`clf` (fish / no-fish classification), or `reg` (count regression) — it must match
+the task the model was trained for.
+
+Results are written to the output directory:
+```
+output/
+    predictions.json     # Per-image predictions (counts, points, etc.)
+    frames/              # Extracted video frames (only when --video is used)
+    visualizations/      # Visualization images (for loc and seg tasks)
+```
+
+> `scripts/predict.py` is a separate tool that visualizes predictions against the
+> **DeepFish dataset** validation split (it requires the dataset structure and its
+> ground-truth labels). For new/unlabelled data, use `predict_simple.py` above.
+
 ## Citations
 
 If you use the DeepFish dataset in your work, please cite it as:

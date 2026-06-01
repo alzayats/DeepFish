@@ -5,10 +5,10 @@ from torchvision import transforms
 import os
 import numpy as np
 import time
-from src import utils as ut
+from DeepFish import utils as ut
 from sklearn.metrics import confusion_matrix
 import skimage
-from src import wrappers
+from DeepFish import wrappers
 from haven import haven_utils as hu
 
 
@@ -33,14 +33,15 @@ class SegWrapper(torch.nn.Module):
         
         self.train()
 
-        images = batch["images"].cuda()
+        device = next(self.model.parameters()).device
+        images = batch["images"].to(device)
 
         logits = self.model.forward(images)
         p_log = F.log_softmax(logits, dim=1)
         p = F.softmax(logits, dim=1)
         FL = p_log*(1.-p)**2.
 
-        loss = F.nll_loss(FL, batch["mask_classes"].cuda().long())
+        loss = F.nll_loss(FL, batch["mask_classes"].to(device).long())
 
         loss.backward()
         self.opt.step()
@@ -48,16 +49,18 @@ class SegWrapper(torch.nn.Module):
         return {"loss_seg":loss.item()}
 
     def val_on_batch(self, batch, **extras):
+        device = next(self.model.parameters()).device
         pred_seg = self.predict_on_batch(batch)
 
-        cm_pytorch = confusion(torch.from_numpy(pred_seg).cuda().float(), 
-                                batch["mask_classes"].cuda().float())
-            
+        cm_pytorch = confusion(torch.from_numpy(pred_seg).to(device).float(),
+                                batch["mask_classes"].to(device).float())
+
         return cm_pytorch
 
     def predict_on_batch(self, batch):
         self.eval()
-        images = batch["images"].cuda()
+        device = next(self.model.parameters()).device
+        images = batch["images"].to(device)
         pred_mask = self.model.forward(images).data.max(1)[1].squeeze().cpu().numpy()
 
         return pred_mask[None]
@@ -82,18 +85,21 @@ class SegWrapper(torch.nn.Module):
         img_gt = mark_boundaries(out.squeeze(),  label(batch["mask_classes"]).squeeze())
         hu.save_image(savedir_image, np.hstack([img_gt, img_mask]))
 
-    def vis_on_batch_inference(self, batch, savedir_image):
+    def vis_on_batch_inference(self, batch, savedir_image, pred_mask=None):
         """Visualize segmentation predictions without ground truth comparison.
 
         This method creates a visualization showing only the predicted segmentation
         mask overlaid on the original image, without requiring ground truth masks.
+        Pass a precomputed `pred_mask` (from predict_on_batch) to avoid running the
+        model a second time.
         """
         from skimage.segmentation import mark_boundaries
         from skimage import color
         from skimage.measure import label
 
         self.eval()
-        pred_mask = self.predict_on_batch(batch)
+        if pred_mask is None:
+            pred_mask = self.predict_on_batch(batch)
 
         img = hu.get_image(batch["images"], denorm="rgb")
         img_np = np.array(img)

@@ -20,7 +20,7 @@ import numpy as np
 from torch import optim
 # from haven._toolbox import misc as ms
 import numba
-from src import utils as ut
+from DeepFish import utils as ut
 import cv2
 
 

@@ -3,7 +3,7 @@
 from . import fish_clf, fish_reg, fish_loc, fish_seg, image_folder
 from torchvision import transforms
 import cv2, os
-from src import utils as ut
+from DeepFish import utils as ut
 import pandas as pd
 import numpy as np
 

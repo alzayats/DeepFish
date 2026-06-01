@@ -4,7 +4,7 @@ path = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
 sys.path.insert(0, path)
 from haven import haven_utils as hu
 import numpy as np
-from src import datasets, models, wrappers
+from DeepFish import datasets, models, wrappers
 import argparse
 from tqdm.auto import tqdm
 
@@ -38,11 +38,11 @@ if __name__ == "__main__":
     
   
     # Create model, opt, wrapper
-    model_original = models.get_model(exp_dict["model"], exp_dict=exp_dict).cuda()
-    opt = torch.optim.Adam(model_original.parameters(), 
+    model_original = models.get_model(exp_dict["model"], exp_dict=exp_dict).to(device)
+    opt = torch.optim.Adam(model_original.parameters(),
                         lr=1e-5, weight_decay=0.0005)
 
-    model = wrappers.get_wrapper(exp_dict["wrapper"], model=model_original, opt=opt).cuda()
+    model = wrappers.get_wrapper(exp_dict["wrapper"], model=model_original, opt=opt).to(device)
 
     if args.exp_config == 'loc':
         batch = torch.utils.data.dataloader.default_collate([train_set[3]])

@@ -5,10 +5,10 @@ from torchvision import transforms
 import os
 import numpy as np
 import time
-from src import utils as ut
+from DeepFish import utils as ut
 from sklearn.metrics import confusion_matrix
 import skimage
-from src import wrappers
+from DeepFish import wrappers
 from haven import haven_utils as hu
 
 
@@ -30,9 +30,10 @@ class RegWrapper(torch.nn.Module):
 
     def train_on_batch(self, batch, **extras):
         self.opt.zero_grad()
-        
-        counts = batch["counts"].cuda()
-        pred_counts = self.model.forward(batch["images"].cuda())
+
+        device = next(self.model.parameters()).device
+        counts = batch["counts"].to(device)
+        pred_counts = self.model.forward(batch["images"].to(device))
 
         loss_reg = F.mse_loss(pred_counts.squeeze(),
             counts.float().squeeze())
@@ -42,8 +43,11 @@ class RegWrapper(torch.nn.Module):
 
         return {"loss_reg":loss_reg.item()}
 
+    @torch.no_grad()
     def predict_on_batch(self, batch):
-        images = batch["images"].cuda()
+        self.eval()
+        device = next(self.model.parameters()).device
+        images = batch["images"].to(device)
         n = images.shape[0]
         return self.model.forward(images).round()
 

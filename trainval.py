@@ -8,16 +8,16 @@ from torch import nn
 from torch.nn import functional as F
 import tqdm
 import pprint
-from src import utils as ut
+from DeepFish import utils as ut
 import torchvision
 from haven import haven_utils as hu
 from haven import haven_chk as hc
 
-from src import datasets, models
+from DeepFish import datasets, models
 from torch.utils.data import DataLoader
 import exp_configs
 from torch.utils.data.sampler import RandomSampler
-from src import wrappers
+from DeepFish import wrappers
 from haven import haven_wizard as hw
 
 
@@ -67,11 +67,11 @@ def trainval(exp_dict, savedir, args):
                             batch_size=1)
 
     # Create model, opt, wrapper
-    model_original = models.get_model(exp_dict["model"], exp_dict=exp_dict).cuda()
-    opt = torch.optim.Adam(model_original.parameters(), 
+    model_original = models.get_model(exp_dict["model"], exp_dict=exp_dict).to(device)
+    opt = torch.optim.Adam(model_original.parameters(),
                         lr=1e-5, weight_decay=0.0005)
 
-    model = wrappers.get_wrapper(exp_dict["wrapper"], model=model_original, opt=opt).cuda()
+    model = wrappers.get_wrapper(exp_dict["wrapper"], model=model_original, opt=opt).to(device)
 
     score_list = []
 

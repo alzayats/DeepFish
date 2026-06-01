@@ -5,10 +5,10 @@ from torchvision import transforms
 import os
 import numpy as np
 import time
-from src import utils as ut
+from DeepFish import utils as ut
 from sklearn.metrics import confusion_matrix
 import skimage
-from src import wrappers
+from DeepFish import wrappers
 from torchvision import transforms
 from haven import haven_utils as hu
 
@@ -31,9 +31,10 @@ class ClfWrapper(torch.nn.Module):
 
     def train_on_batch(self, batch, **extras):
         self.opt.zero_grad()
-        
-        labels = batch["labels"].cuda()
-        logits = self.model.forward(batch["images"].cuda())
+
+        device = next(self.model.parameters()).device
+        labels = batch["labels"].to(device)
+        logits = self.model.forward(batch["images"].to(device))
         loss_clf =  F.binary_cross_entropy_with_logits(logits.squeeze(),
                         labels.squeeze().float(), reduction="mean")
         loss_clf.backward()
@@ -47,7 +48,8 @@ class ClfWrapper(torch.nn.Module):
         return (pred_clf.cpu().numpy().ravel() != batch["labels"].numpy().ravel())
         
     def predict_on_batch(self, batch):
-        images = batch["images"].cuda()
+        device = next(self.model.parameters()).device
+        images = batch["images"].to(device)
         n = images.shape[0]
         logits = self.model.forward(images)
         return (torch.sigmoid(logits) > 0.5).float()
@@ -62,13 +64,18 @@ class ClfWrapper(torch.nn.Module):
         hu.save_json(savedir_image+"/images/%d.json" % batch["meta"]["index"],
                     {"pred_label":float(pred_labels), "gt_label": float(batch["labels"])})
 
+    @torch.no_grad()
     def vis_on_batch_inference(self, batch, savedir_image):
         """Visualize classification predictions without ground truth comparison.
 
         This method outputs the image and prediction without requiring ground truth labels.
+        Returns both the binary prediction and the raw sigmoid probability (confidence).
         """
         self.eval()
-        pred_labels = float(self.predict_on_batch(batch))
+        device = next(self.model.parameters()).device
+        logits = self.model.forward(batch["images"].to(device))
+        prob = float(torch.sigmoid(logits).item())
+        pred_labels = float(prob > 0.5)
 
         # Try to get original image if available, otherwise use transformed image
         if "image_original" in batch:
@@ -77,7 +84,7 @@ class ClfWrapper(torch.nn.Module):
             img = hu.get_image(batch["images"], denorm="rgb")
         img = np.array(img)
 
-        return {"prediction": pred_labels, "image": img}
+        return {"prediction": pred_labels, "confidence": prob, "image": img}
 
 
 class ClfMonitor:

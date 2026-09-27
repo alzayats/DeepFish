@@ -1,187 +1,378 @@
 <!DOCTYPE html>
-<html  >
+<html lang="en">
 <head>
-  <!-- Site made with Mobirise Website Builder v4.10.8, https://mobirise.com -->
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="generator" content="DeepFish, https://alzayats.github.io/DeepFish/">
-  <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
-  <link rel="shortcut icon" href="assets/images/logo.png" type="image/x-icon">
-  <meta name="description" content="DeepFish Dataset">
-  
-  <title>DeepFish</title>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Playfair+Display:400,700&subset=latin,cyrillic">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Alegreya+Sans:400,700&subset=latin,vietnamese,latin-ext">
-  <link rel="stylesheet" href="assets/web/assets/mobirise-icons/mobirise-icons.css">
-  <link rel="stylesheet" href="assets/web/assets/mobirise-icons2/mobirise2.css">
-  <link rel="stylesheet" href="assets/tether/tether.min.css">
-  <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
-  <link rel="stylesheet" href="assets/puritym/css/style.css">
-  <link rel="stylesheet" href="assets/mobirise/css/mbr-additional.css" type="text/css">
-  
-  
-  
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DeepFish: A Realistic Fish-Habitat Dataset</title>
+<meta name="description" content="DeepFish: about 40,000 underwater images from 20 tropical Australian fish habitats, with classification, counting, localization and segmentation labels. Scientific Reports, 2020.">
+<meta property="og:title" content="DeepFish: A Realistic Fish-Habitat Dataset">
+<meta property="og:description" content="39,766 underwater images from 20 habitats in tropical Australia, labelled for classification, counting, localization and segmentation.">
+<meta property="og:image" content="https://alzayats.github.io/DeepFish/img/habitats.jpg">
+<link rel="icon" href="assets/images/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Instrument+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --paper: oklch(0.985 0.006 200);
+    --paper-2: oklch(0.955 0.012 200);
+    --ink: oklch(0.24 0.03 220);
+    --ink-2: oklch(0.44 0.03 215);
+    --rule: oklch(0.88 0.015 205);
+    --sea: oklch(0.42 0.085 205);
+    --sea-soft: oklch(0.78 0.06 200);
+    --pole: oklch(0.83 0.14 88);   /* the yellow survey pole seen in every frame */
+    --serif: "Newsreader", Georgia, serif;
+    --sans: "Instrument Sans", "Helvetica Neue", sans-serif;
+    --mono: "JetBrains Mono", ui-monospace, monospace;
+    --wrap: 68rem;
+    --gutter: clamp(1rem, 4vw, 2.5rem);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 4.5rem; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 400 1.0625rem/1.65 var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; height: auto; display: block; }
+  a { color: var(--sea); text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+  a:hover { text-decoration-thickness: 2px; }
+  :focus-visible { outline: 2px solid var(--sea); outline-offset: 3px; border-radius: 2px; }
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gutter); }
+
+  /* top bar */
+  .bar {
+    position: sticky; top: 0; z-index: 10;
+    background: color-mix(in oklch, var(--paper) 88%, transparent);
+    backdrop-filter: saturate(1.4) blur(8px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .bar .wrap { display: flex; align-items: center; justify-content: space-between; height: 3.5rem; gap: 1rem; }
+  .mark { font: 600 1.15rem/1 var(--serif); color: var(--ink); text-decoration: none; letter-spacing: -0.01em; }
+  .mark span { display: inline-block; width: 0.5rem; height: 1.05rem; background: var(--pole); margin-right: 0.5rem; transform: skewX(-18deg) translateY(0.12rem); }
+  .bar nav { display: flex; gap: clamp(0.75rem, 2.5vw, 1.75rem); font-size: 0.9rem; }
+  .bar nav a { color: var(--ink-2); text-decoration: none; }
+  .bar nav a:hover { color: var(--ink); }
+  @media (max-width: 40rem) { .bar nav a.opt { display: none; } }
+
+  /* hero */
+  header.hero { padding: clamp(2.5rem, 7vw, 5rem) 0 clamp(2rem, 4vw, 3rem); }
+  .venue { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--sea); margin: 0 0 1.25rem; }
+  h1 { font: 500 clamp(2.9rem, 8vw, 5.25rem)/0.95 var(--serif); letter-spacing: -0.025em; margin: 0; }
+  .title { font: 400 clamp(1.25rem, 2.6vw, 1.7rem)/1.3 var(--serif); color: var(--ink-2); margin: 1rem 0 1.75rem; max-width: 34ch; }
+  .authors { margin: 0; font-size: 0.98rem; max-width: none; }
+  .authors a { color: var(--ink); text-decoration-color: var(--rule); }
+  .affil { margin: 0.35rem 0 0; font-size: 0.875rem; color: var(--ink-2); }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 2rem; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.62rem 1.05rem; border-radius: 999px; font: 500 0.93rem/1 var(--sans);
+    text-decoration: none; color: var(--ink); border: 1px solid var(--rule); background: var(--paper);
+    transition: border-color .2s, background .2s, transform .2s cubic-bezier(.22,1,.36,1);
+  }
+  .btn:hover { border-color: var(--ink-2); transform: translateY(-1px); }
+  .btn.primary { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .btn.primary:hover { background: var(--sea); border-color: var(--sea); }
+  .btn svg { width: 1em; height: 1em; flex: none; }
+
+  .plate { margin: 0; }
+  .plate img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 4px; }
+  .plate figcaption, figure figcaption { font-size: 0.85rem; color: var(--ink-2); margin-top: 0.7rem; }
+
+  .facts {
+    display: grid; grid-template-columns: repeat(4, auto); justify-content: start; gap: 0 clamp(1.5rem, 5vw, 4rem);
+    margin: clamp(2rem, 4vw, 2.75rem) 0 0; padding: 1.25rem 0 0; border-top: 1px solid var(--rule);
+  }
+  .facts div { margin: 0; }
+  .facts dt { font-size: 0.78rem; color: var(--ink-2); letter-spacing: 0.04em; }
+  .facts dd { margin: 0.1rem 0 0; font: 500 1.35rem/1.2 var(--serif); font-variant-numeric: lining-nums; }
+  @media (max-width: 40rem) { .facts { grid-template-columns: repeat(2, auto); row-gap: 1rem; } }
+
+  /* sections */
+  section { padding: clamp(3rem, 7vw, 5.5rem) 0; border-top: 1px solid var(--rule); }
+  .sec-head { display: grid; grid-template-columns: 11rem 1fr; gap: 1rem 2.5rem; }
+  .sec-head > * { min-width: 0; }
+  .sec-head > .label { font-size: 0.8rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-2); padding-top: 0.55rem; }
+  .sec-head > .label::before { content: ""; display: block; width: 1.5rem; height: 3px; background: var(--pole); margin-bottom: 0.7rem; }
+  @media (max-width: 52rem) { .sec-head { grid-template-columns: 1fr; } }
+  h2 { font: 500 clamp(1.7rem, 3.4vw, 2.35rem)/1.15 var(--serif); letter-spacing: -0.015em; margin: 0 0 1rem; max-width: 26ch; }
+  h3 { font: 600 1.05rem/1.3 var(--sans); margin: 0 0 0.35rem; }
+  p { margin: 0 0 1rem; max-width: 64ch; }
+  .lede { font-size: 1.12rem; }
+
+  /* tasks */
+  .tasks { width: 100%; border-collapse: collapse; margin: 1.75rem 0 2.5rem; font-size: 0.96rem; }
+  .tasks th { text-align: left; font-weight: 500; font-size: 0.8rem; color: var(--ink-2); letter-spacing: 0.04em; padding: 0 1rem 0.6rem 0; border-bottom: 1px solid var(--ink); }
+  .tasks td { padding: 0.9rem 1rem 0.9rem 0; border-bottom: 1px solid var(--rule); vertical-align: top; }
+  .tasks td:first-child { font-weight: 600; white-space: nowrap; }
+  .tasks .n { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; padding-right: 0; }
+  .tasks th.n { padding-right: 0; }
+  .figs { display: grid; gap: clamp(1.75rem, 3vw, 2.5rem); }
+  .figs figure { margin: 0; }
+  .figs img { border-radius: 4px; }
+  .fig-white { background: oklch(0.995 0 0); border: 1px solid var(--rule); border-radius: 4px; padding: clamp(0.75rem, 2vw, 1.5rem); }
+  .videos { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  @media (max-width: 44rem) { .videos { grid-template-columns: 1fr; } }
+  .video { position: relative; aspect-ratio: 16 / 9; border-radius: 4px; overflow: hidden; background: var(--ink); }
+  .video iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+  /* habitats */
+  .hab { width: 100%; border-collapse: collapse; margin-top: 1.5rem; font-size: 0.92rem; }
+  .hab th { text-align: left; font-weight: 500; font-size: 0.78rem; color: var(--ink-2); letter-spacing: 0.04em; padding: 0 0.75rem 0.55rem 0; border-bottom: 1px solid var(--ink); }
+  .hab td { padding: 0.42rem 0.75rem 0.42rem 0; border-bottom: 1px solid var(--rule); }
+  .hab .n { text-align: right; font-variant-numeric: tabular-nums; width: 5.5rem; }
+  .hab .viz { width: 38%; padding-right: 0; }
+  .barline { display: flex; height: 0.6rem; border-radius: 1px; overflow: hidden; background: transparent; }
+  .barline i { display: block; height: 100%; }
+  .barline .f { background: var(--sea); }
+  .barline .e { background: var(--sea-soft); opacity: 0.55; }
+  .legend { display: flex; gap: 1.25rem; font-size: 0.82rem; color: var(--ink-2); margin-top: 0.9rem; }
+  .legend span::before { content: ""; display: inline-block; width: 0.7rem; height: 0.7rem; margin-right: 0.4rem; vertical-align: -0.05rem; }
+  .legend .f::before { background: var(--sea); }
+  .legend .e::before { background: var(--sea-soft); opacity: 0.55; }
+  @media (max-width: 40rem) { .hab .viz { display: none; } }
+
+  /* code blocks */
+  .code { position: relative; margin: 1.25rem 0 1.5rem; }
+  .code pre {
+    margin: 0; padding: 1.1rem 1.25rem; padding-right: 5.5rem; overflow-x: auto;
+    background: var(--ink); color: oklch(0.93 0.015 200); border-radius: 4px;
+    font: 400 0.86rem/1.7 var(--mono);
+  }
+  .copy {
+    position: absolute; top: 0.6rem; right: 0.6rem; cursor: pointer;
+    font: 500 0.78rem/1 var(--sans); color: oklch(0.93 0.015 200);
+    background: oklch(1 0 0 / 0.08); border: 1px solid oklch(1 0 0 / 0.18); border-radius: 999px; padding: 0.42rem 0.8rem;
+  }
+  .copy:hover { background: oklch(1 0 0 / 0.16); }
+  .meta { display: grid; grid-template-columns: max-content 1fr; gap: 0.35rem 1.5rem; font-size: 0.9rem; margin: 0 0 1.5rem; }
+  .meta dt { color: var(--ink-2); }
+  .meta dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+  .meta code { font: 400 0.8rem var(--mono); }
+  .alt { font-size: 0.95rem; color: var(--ink-2); }
+
+  footer { border-top: 1px solid var(--rule); padding: 2rem 0 3rem; font-size: 0.85rem; color: var(--ink-2); }
+  footer .wrap { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.75rem 2rem; }
+  footer a { color: var(--ink-2); }
+
+  /* load-in */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero > .wrap > * { animation: rise .8s cubic-bezier(.22,1,.36,1) both; }
+    .hero > .wrap > :nth-child(2) { animation-delay: .06s; }
+    .hero > .wrap > :nth-child(3) { animation-delay: .12s; }
+    .hero > .wrap > :nth-child(4) { animation-delay: .18s; }
+    .hero > .wrap > :nth-child(5) { animation-delay: .24s; }
+    .hero > .wrap > :nth-child(6) { animation-delay: .32s; }
+    .hero > .wrap > :nth-child(7) { animation-delay: .40s; }
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } }
+  }
+</style>
 </head>
 <body>
-  <section class="mbr-section mbr-section-full mbr-parallax-background" id="header2-0" data-rv-view="0" style="background-image: url(assets/images/habitatsweb-1280x720.jpg);">
-    <div class="mbr-table-cell">
-        
-        <div class="container">
-            <div class="row">
-                <div class="col-md-8">
 
-                    <h1 class="mbr-section-title display-1"><strong>DeepFish</strong></h1>
-                    <p class="lead">An Underwater Fish Species Image Dataset for Deep Learning</p>
-<!--                    <div class="mbr-buttons&#45;&#45;left"><a class="btn btn-lg btn-success" href="https://cloudstor.aarnet.edu.au/plus/s/NfjObIhtUYO6332" target="_blank">Download Now</a> <a class="btn btn-lg btn-info" href="index.html#msg-box5-f">Learn More</a> </div>-->
-                    <div class="mbr-buttons--left"><a class="btn btn-lg btn-success" href="http://data.qld.edu.au/public/Q5842/2020-AlzayatSaleh-00e364223a600e83bd9c3f5bcd91045-DeepFish/" target="_blank">Download Now</a> <a class="btn btn-lg btn-info" href="index.html#msg-box5-f">Learn More</a> </div>
-                </div>
-            </div>
-        </div>
-        <a class="mbr-arrow" href="#msg-box5-f"><span class="mbri-down mbr-iconfont"></span></a>
+<div class="bar">
+  <div class="wrap">
+    <a class="mark" href="#top"><span aria-hidden="true"></span>DeepFish</a>
+    <nav aria-label="Sections">
+      <a class="opt" href="#tasks">Tasks</a>
+      <a class="opt" href="#habitats">Habitats</a>
+      <a href="#download">Download</a>
+      <a href="#citation">Cite</a>
+      <a href="https://github.com/alzayats/DeepFish">GitHub</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero" id="top">
+  <div class="wrap">
+    <p class="venue">Scientific Reports · 2020</p>
+    <h1>DeepFish</h1>
+    <p class="title">A realistic fish-habitat dataset to evaluate algorithms for underwater visual analysis</p>
+    <div>
+      <p class="authors">
+        Alzayat Saleh, Issam H. Laradji, Dmitry A. Konovalov, Michael Bradley, David Vazquez, Marcus Sheaves
+      </p>
+      <p class="affil">James Cook University · Element AI</p>
     </div>
-</section>
-
-<section class="mbr-section mbr-section-nopadding" id="msg-box5-f" data-rv-view="3" style="background-color: rgb(255, 255, 255); padding-top: 0rem; padding-bottom: 0rem;">
-    
-    <div class="container">
-        <div class="row">
-            
-            <div class="col-xs-12 col-lg-3 mbr-inner-padding text-xs-center mbr-table-cell-lg">
-                <h3 class="mbr-section-title display-4">Counting Dataset</h3>
-                
-                <div class="lead"><p>Video summarize the &nbsp;counting dataset</p></div>
-                <div><a class="btn btn-lg btn-secondary-outline" href="http://data.qld.edu.au/public/Q5842/2020-AlzayatSaleh-00e364223a600e83bd9c3f5bcd91045-DeepFish/" target="_blank">Download Now</a></div>
-            </div>
-            <div class="col-xs-12 col-lg-9 mbr-table-cell-lg image-size" style="width: 28%;">
-                <div class="mbr-figure"><iframe class="mbr-embedded-video" src="https://www.youtube.com/embed/2jOKy7aHFLM?rel=0&amp;amp;showinfo=0&amp;autoplay=1&amp;loop=1&amp;playlist=2jOKy7aHFLM" width="1280" height="720" frameborder="0" allowfullscreen></iframe></div>
-            </div>
-        </div>
+    <div class="actions">
+      <a class="btn primary" href="https://huggingface.co/datasets/Alzayats/DeepFish">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M8 2v8m0 0L4.5 6.5M8 10l3.5-3.5M2.5 13.5h11"/></svg>
+        Download dataset
+      </a>
+      <a class="btn" href="https://www.nature.com/articles/s41598-020-71639-x">Paper</a>
+      <a class="btn" href="https://github.com/alzayats/DeepFish">Code</a>
+      <a class="btn" href="https://doi.org/10.25903/5f617fb6d6e0e">Data record (DOI)</a>
     </div>
-</section>
+    <figure class="plate" style="margin-top: clamp(2.5rem, 5vw, 3.5rem)">
+      <img src="img/habitats.jpg" width="1280" height="720" alt="A grid of twenty underwater video frames, one from each DeepFish habitat: mangrove roots, coral reef, seagrass, boulders and sandy seabed.">
+      <figcaption>One frame from each of the 20 habitats. The yellow pole in many frames is the camera's survey marker.</figcaption>
+    </figure>
+    <dl class="facts">
+      <div><dt>Images</dt><dd>39,766</dd></div>
+      <div><dt>Habitats</dt><dd>20</dd></div>
+      <div><dt>Resolution</dt><dd>1920 × 1080</dd></div>
+      <div><dt>License</dt><dd>CC BY 4.0</dd></div>
+    </dl>
+  </div>
+</header>
 
-<section class="mbr-section mbr-section-nopadding" id="msg-box5-3" data-rv-view="6" style="background-color: rgb(255, 255, 255); padding-top: 0rem; padding-bottom: 0rem;">
-    
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-12 col-lg-9 mbr-table-cell-lg image-size" style="width: 28%;">
-                <div class="mbr-figure"><iframe class="mbr-embedded-video" src="https://www.youtube.com/embed/DXEisy80Dj8?rel=0&amp;amp;showinfo=0&amp;autoplay=1&amp;loop=1&amp;playlist=DXEisy80Dj8" width="1280" height="720" frameborder="0" allowfullscreen></iframe></div>
-            </div>
-            <div class="col-xs-12 col-lg-3 mbr-inner-padding text-xs-center mbr-table-cell-lg">
-                <h3 class="mbr-section-title display-4">Segmentation Dataset</h3>
-                
-                <div class="lead"><p>Video summarize the segmentation dataset</p></div>
-                <div><a class="btn btn-lg btn-secondary-outline" href="http://data.qld.edu.au/public/Q5842/2020-AlzayatSaleh-00e364223a600e83bd9c3f5bcd91045-DeepFish/">Download Now</a></div>
-            </div>
-            
-        </div>
+<main>
+  <section id="overview">
+    <div class="wrap sec-head">
+      <div class="label">Overview</div>
+      <div>
+        <h2>Fish in the conditions they actually live in</h2>
+        <p class="lede">Most underwater datasets are filmed in clear water with a few, well-lit fish. DeepFish comes from remote coastal habitats of tropical Australia: turbid mangroves, seagrass beds and reefs, where fish are small, partly hidden and often absent.</p>
+        <p>Cameras mounted on metal frames were lowered from a vessel to the seabed and left to record the natural fish community while the vessel kept 100&nbsp;m away. Depth and GPS position were logged for each deployment. Filming was done in daylight during periods of relatively low turbidity, in full HD.</p>
+        <p>The footage originally came with classification labels only. We added point-level and segmentation annotations, making DeepFish a benchmark for four tasks.</p>
+      </div>
     </div>
-</section>
+  </section>
 
-<section class="mbr-section mbr-section-nopadding" id="msg-box4-e" data-rv-view="9" style="background-color: rgb(255, 255, 255); padding-top: 0rem; padding-bottom: 0rem;">
-    
-    <div class="container">
-        <div class="row">
-            
-            <div class="col-xs-12 col-lg-3 mbr-inner-padding text-xs-center mbr-table-cell-lg">
-                <h3 class="mbr-section-title display-4">Classification Dataset</h3>
-                
-                <div class="lead"><p>Graph summarize the cassification dataset</p></div>
-                <div><a class="btn btn-lg btn-secondary-outline" href="http://data.qld.edu.au/public/Q5842/2020-AlzayatSaleh-00e364223a600e83bd9c3f5bcd91045-DeepFish/">Download Now</a></div>
-            </div>
-            <div class="col-xs-12 col-lg-9 mbr-table-cell-lg image-size" style="width: 33%;">
-                <div class="mbr-figure"><img src="assets/images/garph-pi2-1400x707.png"></div>
-            </div>
+  <section id="tasks">
+    <div class="wrap sec-head">
+      <div class="label">Tasks</div>
+      <div>
+        <h2>One dataset, four benchmarks</h2>
+        <table class="tasks">
+          <thead><tr><th scope="col">Task</th><th scope="col">Annotation</th><th scope="col" class="n">Images</th></tr></thead>
+          <tbody>
+            <tr><td>Classification</td><td>Whether the frame contains a fish</td><td class="n">39,766</td></tr>
+            <tr><td>Counting</td><td>Number of fish in the frame, from point labels</td><td class="n">3,200</td></tr>
+            <tr><td>Localization</td><td>A point on every fish</td><td class="n">3,200</td></tr>
+            <tr><td>Segmentation</td><td>Pixel-level fish masks</td><td class="n">620</td></tr>
+          </tbody>
+        </table>
+
+        <div class="figs">
+          <figure>
+            <div class="fig-white"><img src="img/tasks.jpg" width="1600" height="726" loading="lazy" alt="Diagram: an image passes through a ResNet-50 backbone, then a feed-forward branch for classification and counting and an upsampling branch for localization and segmentation."></div>
+            <figcaption>Baseline architecture: a shared ResNet-50 backbone with one head per task.</figcaption>
+          </figure>
+          <figure>
+            <img src="img/example-localization.jpg" width="2400" height="450" loading="lazy" alt="Three panels of the same reef frame: ground-truth points on two fish, the model's two predicted blobs, and the heatmap.">
+            <figcaption>Localization: ground-truth points, predicted fish, and the model's heatmap.</figcaption>
+          </figure>
+          <figure>
+            <img src="img/example-segmentation.jpg" width="2400" height="675" loading="lazy" alt="A reef frame with two fish, shown twice with their segmentation masks overlaid.">
+            <figcaption>Segmentation: pixel-level masks for each fish.</figcaption>
+          </figure>
+          <div class="videos">
+            <figure>
+              <div class="video"><iframe src="https://www.youtube-nocookie.com/embed/2jOKy7aHFLM?rel=0" title="DeepFish counting dataset" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+              <figcaption>Counting and localization subset.</figcaption>
+            </figure>
+            <figure>
+              <div class="video"><iframe src="https://www.youtube-nocookie.com/embed/DXEisy80Dj8?rel=0" title="DeepFish segmentation dataset" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="encrypted-media; picture-in-picture" allowfullscreen></iframe></div>
+              <figcaption>Segmentation subset.</figcaption>
+            </figure>
+          </div>
         </div>
+      </div>
     </div>
-</section>
+  </section>
 
-<section class="mbr-section mbr-section-small" id="content4-5" data-rv-view="12" style="background-color: rgb(255, 255, 255); padding-top: 0rem; padding-bottom: 0rem;">
-    
-    <div class="container">
-        <div class="row">
-            <div class="col-sm-6 col-md-4">
-                <div class="card cart-block">
-                    <div class="card-block">
-                        <h4 class="card-title text-xs-center">Research Paper</h4>
-<!--                        <p class="card-text">A realistic fish-habitat dataset to evaluate algorithms for underwater visual analysis</p>-->
-                        <p class="card-text"><a href="https://www.nature.com/articles/s41598-020-71639-x" target="_blank">A realistic fish-habitat dataset to evaluate algorithms for underwater visual analysis</a></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-md-4">
-                <div class="card cart-block">
-                    <div class="card-block">
-                        <h4 class="card-title text-xs-center">Source Code</h4>
-<!--                        <p class="card-text">https://github.com/alzayats/DeepFish</p>-->
-                        <p class="card-text"><a href="https://github.com/alzayats/DeepFish" target="_blank">https://github.com/alzayats/DeepFish</a></p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-sm-6 col-md-4">
-                <div class="card cart-block">
-                    <div class="card-block">
-                        <h4 class="card-title text-xs-center">Citations</h4>
-<!--                        <p class="card-text">Saleh, A., Laradji, I.H., Konovalov, D.A. et al. A realistic fish-habitat dataset to evaluate algorithms for underwater visual analysis. Sci Rep 10, 14671 (2020). https://doi.org/10.1038/s41598-020-71639-x</p>-->
-                        <p class="card-text">If you use the DeepFish dataset in your work, please cite it as:</p>
-<pre style="white-space: pre-wrap;">
-<code id="citation">@article{saleh2020realistic,
-  title={A realistic fish-habitat dataset to evaluate algorithms for underwater visual analysis},
-  author={Saleh, Alzayat and Laradji, Issam H and Konovalov, Dmitry A and Bradley, Michael and Vazquez, David and Sheaves, Marcus},
-  journal={Scientific Reports},
-  volume={10},
-  number={1},
-  pages={14671},
-  year={2020},
-  publisher={Nature Publishing Group UK London},
-  doi={https://doi.org/10.1038/s41598-020-71639-x}
-}
-</code>
-</pre>
-<button onclick="copyToClipboard()">Copy</button>
+  <section id="habitats">
+    <div class="wrap sec-head">
+      <div class="label">Habitats</div>
+      <div>
+        <h2>Twenty habitats, from reef to mangrove</h2>
+        <p>Frames per habitat in the classification set, split into frames with and without fish. More than half of all frames contain no fish, as in real survey footage.</p>
+        <table class="hab" id="hab">
+          <thead><tr><th scope="col">Habitat</th><th scope="col" class="n">Frames</th><th scope="col" class="n">With fish</th><th scope="col" class="viz"><span class="sr">Distribution</span></th></tr></thead>
+          <tbody></tbody>
+          <tfoot><tr><td><strong>Total</strong></td><td class="n"><strong>39,766</strong></td><td class="n"><strong>17,409</strong></td><td class="viz"></td></tr></tfoot>
+        </table>
+        <div class="legend"><span class="f">With fish</span><span class="e">No fish</span></div>
+      </div>
+    </div>
+  </section>
 
+  <section id="download">
+    <div class="wrap sec-head">
+      <div class="label">Download</div>
+      <div>
+        <h2>Get the data</h2>
+        <p>The dataset is a single 7.1&nbsp;GB archive. The Hugging Face mirror is fastest from anywhere in the world, and interrupted downloads resume when you rerun the command.</p>
+        <div class="code">
+          <pre id="dl">pip install -U huggingface_hub
+hf download Alzayats/DeepFish DeepFish.tar DeepFish.tar.sha256 --repo-type dataset --local-dir .
+sha256sum -c DeepFish.tar.sha256
+tar xf DeepFish.tar</pre>
+          <button class="copy" type="button" data-copy="dl">Copy</button>
+        </div>
+        <dl class="meta">
+          <dt>Mirror</dt><dd><a href="https://huggingface.co/datasets/Alzayats/DeepFish">huggingface.co/datasets/Alzayats/DeepFish</a></dd>
+          <dt>Original</dt><dd><a href="http://data.qld.edu.au/public/Q5842/2020-AlzayatSaleh-00e364223a600e83bd9c3f5bcd91045-DeepFish/">data.qld.edu.au</a> (James Cook University data portal)</dd>
+          <dt>SHA-256</dt><dd><code>8acabb8a314fa8eb45fa9cc6829c84bdc127b1f8f605f2e152304e98b6dbb46c</code></dd>
+          <dt>Layout</dt><dd><code>DeepFish/Classification</code>, <code>Localization</code>, <code>Segmentation</code></dd>
+        </dl>
+        <p class="alt">Training and evaluation code for all four tasks is on <a href="https://github.com/alzayats/DeepFish">GitHub</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="citation">
+    <div class="wrap sec-head">
+      <div class="label">Citation</div>
+      <div>
+        <h2>Cite DeepFish</h2>
+        <p>If you use the dataset, please cite the paper:</p>
+        <div class="code">
+          <pre id="bib">@article{saleh2020realistic,
+  title   = {A realistic fish-habitat dataset to evaluate algorithms for underwater visual analysis},
+  author  = {Saleh, Alzayat and Laradji, Issam H and Konovalov, Dmitry A and Bradley, Michael and Vazquez, David and Sheaves, Marcus},
+  journal = {Scientific Reports},
+  volume  = {10},
+  number  = {1},
+  pages   = {14671},
+  year    = {2020},
+  publisher = {Nature Publishing Group UK London},
+  doi     = {10.1038/s41598-020-71639-x}
+}</pre>
+          <button class="copy" type="button" data-copy="bib">Copy</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Dataset: <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> · Code: MIT · James Cook University</span>
+    <span>Questions? <a href="https://github.com/alzayats/DeepFish/issues">Open an issue</a></span>
+  </div>
+</footer>
+
+<style>.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }</style>
 <script>
-function copyToClipboard() {
-  var range = document.createRange();
-  range.selectNode(document.getElementById("citation"));
-  window.getSelection().removeAllRanges();
-  window.getSelection().addRange(range);
-  document.execCommand("copy");
-}
+  // Frames per habitat: [name, total, with fish] (SummeryOFdatset_190915.csv)
+  const HABITATS = [
+    ["Low complexity reef", 4977, 1461], ["Sandy mangrove prop roots", 4162, 1704],
+    ["Complex reef", 4018, 714], ["Seagrass bed", 3255, 1790],
+    ["Low algal bed", 2795, 1141], ["Reef trench", 2653, 1096],
+    ["Boulders", 2314, 1903], ["Mixed substratum mangrove, prop roots", 2139, 949],
+    ["Rocky mangrove, prop roots", 2119, 2029], ["Upper mangrove, medium Rhizophora", 2101, 547],
+    ["Rock shelf", 1848, 394], ["Mangrove, mixed pneumatophore prop root", 1542, 244],
+    ["Sparse algal bed", 1467, 1467], ["Muddy mangrove, pneumatophores and trunk", 1117, 855],
+    ["Large boulder and pneumatophores", 900, 298], ["Rocky mangrove, large boulder and trunk", 560, 117],
+    ["Bare substratum", 526, 166], ["Upper mangrove, tall Rhizophora", 475, 221],
+    ["Large boulder", 434, 123], ["Muddy mangrove, pneumatophores", 364, 190],
+  ];
+  const max = HABITATS[0][1], fmt = n => n.toLocaleString("en-US");
+  document.querySelector("#hab tbody").innerHTML = HABITATS.map(([name, total, fish]) => `
+    <tr><td>${name}</td><td class="n">${fmt(total)}</td><td class="n">${fmt(fish)}</td>
+    <td class="viz"><div class="barline" style="width:${(total / max * 100).toFixed(1)}%">
+      <i class="f" style="width:${(fish / total * 100).toFixed(1)}%"></i><i class="e" style="flex:1"></i></div></td></tr>`).join("");
+
+  document.querySelectorAll(".copy").forEach(btn => btn.addEventListener("click", async () => {
+    const text = document.getElementById(btn.dataset.copy).innerText;
+    try { await navigator.clipboard.writeText(text); btn.textContent = "Copied"; }
+    catch { btn.textContent = "Press Ctrl+C"; }
+    setTimeout(() => (btn.textContent = "Copy"), 1600);
+  }));
 </script>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-    </div>
-</section>
-
-<section class="mbr-section mbr-section-small mbr-footer" id="contacts1-j" data-rv-view="15" style="background-color: rgb(55, 56, 62); padding-top: 0rem; padding-bottom: 0rem;">
-    
-    <div class="container">
-        <div class="row">
-            <div class="col-xs-12 col-md-3">
-                <div><span class="mobi-mbri mobi-mbri-rocket mbr-iconfont mbr-iconfont-contacts1"></span></div>
-            </div>
-            <div class="col-xs-12 col-md-3">
-                <p></p>
-            </div>
-            <div class="col-xs-12 col-md-3">
-                <p></p>
-            </div>
-            <div class="col-xs-12 col-md-3"></div>
-        </div>
-    </div>
-</section>
-
-
-  <script src="assets/web/assets/jquery/jquery.min.js"></script>
-  <script src="assets/tether/tether.min.js"></script>
-  <script src="assets/bootstrap/js/bootstrap.min.js"></script>
-  <script src="assets/smooth-scroll/smooth-scroll.js"></script>
-  <script src="assets/jarallax/jarallax.js"></script>
-  <script src="assets/puritym/js/script.js"></script>
-  
-  
 </body>
 </html>
